@@ -249,14 +249,14 @@
       cursor: pointer;
       padding: 0;
       flex-shrink: 0;
-    transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease;
 
       &:hover {
-        background-color:  #5cd65c;
+        background-color: #5cd65c;
       }
       &:active {
-    background-color: black; // <-- added this
-  }
+        background-color: black; // <-- added this
+      }
 
       svg {
         width: 16px;
@@ -353,7 +353,12 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.01); /* almost transparent, home page fully visible */
+  background: rgba(
+    0,
+    0,
+    0,
+    0.01
+  ); /* almost transparent, home page fully visible */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -370,6 +375,5 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2); // nice shadow
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); // nice shadow
 }
-
