@@ -1,3 +1,20 @@
+// Get a single employee by ID (with status and role)
+export const getEmployeeById = (req, res) => {
+  const { employee_id } = req.params;
+  const query = `
+    SELECT e.*, l.role
+    FROM employee e
+    JOIN employee_login l ON e.employee_id = l.employee_id
+    WHERE e.employee_id = ?
+    LIMIT 1
+  `;
+  db.query(query, [employee_id], (err, data) => {
+    if (err) return res.status(500).json("Database error: " + err.message);
+    if (!data || data.length === 0)
+      return res.status(404).json("Employee not found");
+    return res.status(200).json(data[0]);
+  });
+};
 import { db } from "../db.js";
 import bcrypt from "bcrypt";
 
@@ -126,5 +143,37 @@ export const getAllEmployees = (req, res) => {
   db.query(query, [], (err, data) => {
     if (err) return res.status(500).json("Database error: " + err.message);
     return res.status(200).json(data);
+  });
+};
+
+// DELETE
+export const deleteEmployee = (req, res) => {
+  const { employee_id } = req.params;
+
+  // First check if employee exists and is ACTIVE
+  const checkQuery = "SELECT * FROM employee WHERE employee_id=? AND status='ACTIVE'";
+  db.query(checkQuery, [employee_id], (err, data) => {
+    if (err) return res.status(500).json("Database error: " + err.message);
+    if (!data || data.length === 0)
+      return res.status(404).json("Employee not found or already inactive");
+
+    // Delete from employee_login
+    const deleteLoginQuery = "DELETE FROM employee_login WHERE employee_id=?";
+    db.query(deleteLoginQuery, [employee_id], (err2) => {
+      if (err2) return res.status(500).json("Error deleting login: " + err2.message);
+
+      // Delete from leave_details
+      const deleteLeaveDetailsQuery = "DELETE FROM leave_details WHERE employee_id=?";
+      db.query(deleteLeaveDetailsQuery, [employee_id], (err3) => {
+        if (err3) return res.status(500).json("Error deleting leave details: " + err3.message);
+
+        // Update status to INACTIVE
+        const updateStatusQuery = "UPDATE employee SET status='INACTIVE' WHERE employee_id=?";
+        db.query(updateStatusQuery, [employee_id], (err4) => {
+          if (err4) return res.status(500).json("Error updating status: " + err4.message);
+          return res.status(200).json("Employee deleted successfully");
+        });
+      });
+    });
   });
 };

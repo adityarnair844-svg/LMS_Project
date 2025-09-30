@@ -84,14 +84,9 @@ const Login = () => {
           </span>
         </div>
         <span>
-          <Link to="/forgotpass" className="link">
-            Forgot Password
-          </Link>
+          <Link to="/forgotpass" className="link">Forgot Password</Link>
         </span>
-        <button type="submit" disabled={loading}>
-          {" "}
-          {loading ? "Please wait..." : "Login"}
-        </button>
+        <button type="submit" disabled={loading}> {loading ? "Please wait..." : "Login"}</button>
         {error && <p>{error}</p>}
         {success && <p style={{ color: "green" }}>{success}</p>}
       </form>

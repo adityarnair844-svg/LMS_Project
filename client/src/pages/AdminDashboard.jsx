@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext  } from "react";
 import CardBox from "../components/CardBox";
 import {
   FaUserCircle,
@@ -11,14 +11,20 @@ import {
 import EmployeeForm from "../components/EmployeeForm";
 import EmployeeList from "../components/EmployeeList";
 import EditEmployeeForm from "../components/EditEmployeeForm";
+import EditEmployeeSearchModal from "../components/EditEmployeeSearchModal";
+import DeleteEmployeeSearchModal from "../components/DeleteEmployeeSearchModal";
+import { AuthContext } from "../context/authContext";
+
 
 import { useEffect } from "react";
 
 const AdminDashboard = () => {
+  const { currentUser } = useContext(AuthContext);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditList, setShowEditList] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
   const [refreshList, setRefreshList] = useState(false);
+  const [showDeleteList, setShowDeleteList] = useState(false);
 
   // Debug: log when editEmployee changes
   React.useEffect(() => {
@@ -66,8 +72,15 @@ const AdminDashboard = () => {
               <div className="profile-icon-big">
                 <FaUserCircle size={80} color="#000" />
               </div>
-              <h4>Admin Name</h4>
-              <p>Phone: +91-9876543210</p>
+             {currentUser ? (
+  <>
+    <h4>{currentUser.first_name} {currentUser.last_name}</h4>
+    <p>Phone: {currentUser.phone_no}</p>
+  </>
+) : (
+  <p>Loading...</p>
+)}
+
             </div>
           </CardBox>
 
@@ -86,9 +99,13 @@ const AdminDashboard = () => {
               >
                 <FaEdit /> Edit Employee
               </button>
-              <button className="btn delete">
-                <FaTrash /> Delete Employee
-              </button>
+             <button
+  className="btn delete"
+  onClick={() => setShowDeleteList(true)}
+>
+  <FaTrash /> Delete Employee
+</button>
+
             </div>
           </CardBox>
         </div>
@@ -115,68 +132,13 @@ const AdminDashboard = () => {
           />
         )}
 
-        {/* Edit Employee List Modal */}
-        {showEditList &&
-          !editEmployee &&
-          ((() => {
-            console.log("About to render EmployeeList modal");
-            return null;
-          })() || (
-            <div
-              className="modal-backdrop"
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                background: "rgba(0,0,0,0.15)",
-                zIndex: 9999,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                className="modal"
-                style={{
-                  background: "#fff",
-                  color: "#000",
-                  borderRadius: "16px",
-                  minWidth: 400,
-                  maxWidth: 560,
-                  minHeight: 480,
-                  maxHeight: 560,
-                  width: "100%",
-                  padding: "32px 40px 24px 40px",
-                  boxShadow: "0 10px 32px rgba(0,0,0,0.18)",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  position: "relative",
-                  overflowY: "auto",
-                  zIndex: 10000,
-                }}
-              >
-                <EmployeeList
-                  onEdit={(emp) => {
-                    setEditEmployee(emp);
-                    // Don't close the list modal, just switch to edit
-                  }}
-                  key={refreshList}
-                />
-                <div style={{ textAlign: "center", marginTop: 16 }}>
-                  <button
-                    className="btn delete"
-                    onClick={() => setShowEditList(false)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Edit Employee Search Modal */}
+        {showEditList && !editEmployee && (
+          <EditEmployeeSearchModal
+            onFound={(emp) => setEditEmployee(emp)}
+            onClose={() => setShowEditList(false)}
+          />
+        )}
 
         {/* Edit Employee Form Modal */}
         {editEmployee && (
@@ -194,6 +156,14 @@ const AdminDashboard = () => {
             showBack
           />
         )}
+
+        {/* Delete Employee Search Modal */}
+         {showDeleteList && (
+  <DeleteEmployeeSearchModal
+    onClose={() => setShowDeleteList(false)}
+  />
+)}       
+
       </div>
     </>
   );
