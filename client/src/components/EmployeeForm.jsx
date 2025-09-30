@@ -56,21 +56,40 @@ const EmployeeForm = ({ closeModal }) => {
   };
 
   return (
-    <div className="modal-backdrop">
+    <div
+      className="modal-backdrop"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "rgba(0,0,0,0.15)",
+        zIndex: 2000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <div
         className="modal"
         style={{
           background: "#fff",
           color: "#000",
-          zIndex: 2000,
-          position: "relative",
-          minHeight: 300,
+          borderRadius: "16px",
           minWidth: 400,
+          maxWidth: 560,
+          minHeight: 480,
+          maxHeight: 80 * 6 + 80, // enough for all fields and buttons
+          width: "100%",
+          padding: "32px 40px 24px 40px",
+          boxShadow: "0 10px 32px rgba(0,0,0,0.18)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+          justifyContent: "flex-start",
+          position: "relative",
+          overflowY: "auto",
         }}
       >
         <h2 style={{ marginBottom: 20, color: "#007bff" }}>Add Employee</h2>
@@ -79,212 +98,137 @@ const EmployeeForm = ({ closeModal }) => {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              gap: "18px",
+              gap: "18px 24px",
               marginBottom: "18px",
             }}
           >
+            {/* Employee ID */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="employee_id"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Employee ID
+              <label htmlFor="employee_id">
+                Employee ID <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="employee_id"
                 type="text"
                 name="employee_id"
+                value={formData.employee_id}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* First Name */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="first_name"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                First Name
+              <label htmlFor="first_name">
+                First Name <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="first_name"
                 type="text"
                 name="first_name"
+                value={formData.first_name}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Last Name */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="last_name"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Last Name
+              <label htmlFor="last_name">
+                Last Name <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="last_name"
                 type="text"
                 name="last_name"
+                value={formData.last_name}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Designation */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="designation"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Designation
+              <label htmlFor="designation">
+                Designation <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="designation"
                 type="text"
                 name="designation"
+                value={formData.designation}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Email */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="email"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Email
+              <label htmlFor="email">
+                Email <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="email"
                 type="email"
                 name="email"
+                value={formData.email}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Department */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="department"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Department
+              <label htmlFor="department">
+                Department <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="department"
                 type="text"
                 name="department"
+                value={formData.department}
                 onChange={handleChange}
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
+                required
               />
             </div>
+            {/* Phone Number */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="phone_no"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Phone Number
+              <label htmlFor="phone_no">
+                Phone Number <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="phone_no"
                 type="text"
                 name="phone_no"
+                value={formData.phone_no}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Manager ID (no star, not required) */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="manager_id"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Manager ID (optional)
-              </label>
+              <label htmlFor="manager_id">Manager ID</label>
               <input
                 id="manager_id"
                 type="text"
                 name="manager_id"
+                value={formData.manager_id}
                 onChange={handleChange}
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Password */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="password"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Password
+              <label htmlFor="password">
+                Password <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="password"
                 type="password"
                 name="password"
+                value={formData.password}
                 onChange={handleChange}
                 required
-                style={{
-                  width: "220px",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  fontSize: "15px",
-                }}
               />
             </div>
+            {/* Role */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="role"
-                style={{ fontWeight: 500, marginBottom: 4 }}
-              >
-                Role
+              <label htmlFor="role">
+                Role <span style={{ color: "red" }}>*</span>
               </label>
               <select
                 id="role"
@@ -293,7 +237,7 @@ const EmployeeForm = ({ closeModal }) => {
                 onChange={handleChange}
                 required
                 style={{
-                  width: "220px",
+                  maxWidth: 180,
                   padding: "8px",
                   borderRadius: "6px",
                   border: "1px solid #ccc",
