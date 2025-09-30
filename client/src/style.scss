@@ -1,0 +1,375 @@
+.app {
+  .app_container {
+    //LOGIN AND FORGOTPASS
+    .auth {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: lightcyan;
+
+      .password_field {
+        position: relative;
+        input {
+          width: 100%;
+          padding-right: 40px;
+        }
+        .eye_icon {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: gray;
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    h1 {
+      font-size: 20px;
+      color: teal;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      background-color: white;
+      width: 300px;
+      gap: 20px;
+      input {
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid gray;
+      }
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      background-color: teal;
+      cursor: pointer;
+      color: white;
+      &:hover {
+        background-color: darkcyan;
+      }
+    }
+
+    p {
+      font-size: 15px;
+      color: red;
+      text-align: center;
+    }
+
+    span {
+      font-size: 15px;
+
+      .link {
+        color: blue;
+        &:hover {
+          color: darkviolet;
+        }
+      }
+    }
+
+    //NAVBAR
+    .navbar {
+      width: 100vw;
+      margin-top: 20px;
+      background-color: teal;
+      color: white;
+      padding: 15px 30px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .navbar_container {
+        padding: 10px 0px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%; // optional, ensures full width
+
+        .links {
+          display: flex;
+          align-items: center;
+
+          .nav_link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            font-size: 16px;
+            display: inline-block;
+
+            &:hover {
+              background-color: darkcyan;
+            }
+          }
+
+          .dropdown {
+            position: relative;
+            display: inline-block;
+
+            .dropbtn {
+              color: white;
+              padding: 10px 16px;
+              font-size: 16px;
+              border: none;
+              cursor: pointer;
+
+              &::after {
+                content: "▼"; // Unicode down arrow
+                font-size: 10px;
+                margin-left: 6px;
+                display: inline-block;
+                vertical-align: middle;
+              }
+            }
+
+            .dropdown-content {
+              display: none; // hide by default
+              position: absolute;
+              background-color: white;
+              min-width: 300px;
+              box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+              z-index: 1;
+              flex-direction: column;
+
+              a {
+                color: black;
+                padding: 10px 16px;
+                text-decoration: none;
+                display: block;
+
+                &:hover {
+                  background-color: lightgrey;
+                }
+              }
+            }
+
+            &:hover .dropdown-content {
+              display: block;
+            }
+          }
+        }
+
+        .logout_button {
+          button {
+            background-color: white;
+            color: teal;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+              background-color: lightgray;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+//ADMIN DASHBOARD
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+  height: calc(100vh - 80px);
+
+  .dashboard-left,
+  .dashboard-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    &.stretch {
+      flex: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 30px;
+
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        flex-grow: 1;
+      }
+
+      .card-icon {
+        font-size: 25px;
+        color: #333;
+        margin-right: 10px;
+      }
+
+      .card-action {
+        margin-left: auto;
+      }
+    }
+
+    .card-body {
+      margin-top: 10px;
+    }
+  }
+
+  /* Profile Card */
+  .card-box.profile-card {
+    display: flex;
+    flex-direction: column;
+
+    .edit-profile {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #28a745;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+    transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color:  #5cd65c;
+      }
+      &:active {
+    background-color: black; // <-- added this
+  }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .profile-card-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+
+      .profile-icon-big {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 0;
+        color: gray;
+      }
+    }
+  }
+
+  /* Manage Employees */
+  .manage-employees {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 5px;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      width: 40%;
+      text-align: center;
+      transition: background-color 0.2s ease;
+
+      &.add {
+        background: #007bff;
+        &:hover {
+          background: #3399ff;
+        }
+      }
+
+      &.edit {
+        background: #28a745;
+        &:hover {
+          background: #5cd65c;
+        }
+      }
+
+      &.delete {
+        background: #dc3545;
+        &:hover {
+          background: #ff6666;
+        }
+      }
+    }
+  }
+
+  .announcement-textarea {
+    width: 100%;
+    height: 110px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    resize: none;
+  }
+}
+//ADD EMPLOYEE
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.01); /* almost transparent, home page fully visible */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2); // nice shadow
+}
+
