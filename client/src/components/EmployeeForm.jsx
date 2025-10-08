@@ -259,6 +259,7 @@ const EmployeeForm = ({ closeModal }) => {
             <button
               type="submit"
               disabled={loading}
+              className="button-teal"
               style={{
                 background: "#007bff",
                 color: "#fff",
@@ -277,6 +278,7 @@ const EmployeeForm = ({ closeModal }) => {
             </button>
             <button
               type="button"
+              className="button-teal"
               onClick={closeModal}
               style={{
                 background: "#dc3545",

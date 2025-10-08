@@ -115,6 +115,7 @@ const EditEmployeeSearchModal = ({ onFound, onClose }) => {
           />
           <button
             type="submit"
+            className="button-teal"
             disabled={loading || !employeeId}
             style={{
               background: "#007bff",
@@ -164,6 +165,7 @@ const EditEmployeeSearchModal = ({ onFound, onClose }) => {
                 {foundEmployee.employee_id})
               </span>
               <button
+              className="button-teal"
                 style={{
                   background: "none",
                   border: "none",

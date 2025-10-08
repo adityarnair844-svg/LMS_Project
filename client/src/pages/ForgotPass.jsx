@@ -57,7 +57,7 @@ const [loading, setLoading] = useState(false);
 
   return (
     <div className="auth">
-      <h1>Set New Password</h1>
+      <div className="styled-heading">Set New Password</div>
       <form onSubmit={handleSubmit}>
         <input
           required
@@ -98,7 +98,7 @@ const [loading, setLoading] = useState(false);
             Back
           </Link>
         </span>
-        <button type="submit" disabled={loading}>{loading ? "Please wait..." : "Change Password"}</button>
+        <button className="button-teal" type="submit" disabled={loading}>{loading ? "Please wait..." : "Change Password"}</button>
         {error && <p>{error}</p>}
         {success && <p style={{ color: "green" }}>{success}</p>}
       </form>

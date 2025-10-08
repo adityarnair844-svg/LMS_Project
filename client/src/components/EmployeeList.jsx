@@ -70,6 +70,7 @@ const EmployeeList = ({ onEdit }) => {
               >
                 <button
                   onClick={() => onEdit(emp)}
+                  className="button-teal"
                   style={{
                     background: "none",
                     border: "none",

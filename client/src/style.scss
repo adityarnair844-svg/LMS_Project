@@ -27,10 +27,11 @@
       }
     }
 
-    h1 {
+    .styled-heading {
       font-size: 20px;
-      color: teal;
+      color: rgb(2, 91, 91);
       margin-bottom: 20px;
+      font-weight: 700;
     }
 
     form {
@@ -50,11 +51,11 @@
     button {
       padding: 10px;
       border: none;
-      background-color: teal;
+      background-color: rgb(2, 91, 91);
       cursor: pointer;
       color: white;
       &:hover {
-        background-color: darkcyan;
+        background-color: rgb(9, 98, 98);
       }
     }
 
@@ -78,8 +79,8 @@
     //NAVBAR
     .navbar {
       width: 100vw;
-      margin-top: 20px;
-      background-color: teal;
+      // margin-top: 20px;
+      background-color: rgb(2, 91, 91);
       color: white;
       padding: 15px 30px;
       box-sizing: border-box;
@@ -160,7 +161,7 @@
         .logout_button {
           button {
             background-color: white;
-            color: teal;
+            color: rgb(2, 91, 91);
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
@@ -184,16 +185,26 @@
   grid-template-columns: 2fr 1fr;
   gap: 20px;
   padding: 20px;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 80px); // full screen minus header
+  align-items: start;         // ensures items align at the top, not stretch
 
   .dashboard-left,
   .dashboard-right {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;              // make each column a grid
+    grid-auto-rows: minmax(100px, auto); // rows sized automatically
+    gap: 20px;           // fill the grid row height
+  }
+  .dashboard-left {
+    grid-template-rows: repeat(2, 1fr); // 2 cards stacked, equal height
+    min-height: 100%;
   }
 
+  .dashboard-right {
+    grid-template-rows: repeat(2, 1fr);; // 1 card only
+    min-height: 100%;
+  }
   .card-box {
+    flex: 1 1 auto;          // allow cards to grow equally inside each column 
     background: #fff;
     border-radius: 10px;
     padding: 40px;
@@ -313,16 +324,16 @@
       transition: background-color 0.2s ease;
 
       &.add {
-        background: #007bff;
+        background: rgb(12, 149, 12);
         &:hover {
-          background: #3399ff;
+          background: rgba(12, 149, 12, 0.849);
         }
       }
 
       &.edit {
-        background: #28a745;
+        background: #35239c;
         &:hover {
-          background: #5cd65c;
+          background: #35239cd8;
         }
       }
 
@@ -376,4 +387,88 @@
   flex-direction: column;
   gap: 15px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); // nice shadow
+}
+
+.no-result {
+    display: block;
+    margin: auto;
+    width: 50%;
+}
+
+.styled-table {
+    border-collapse: collapse;
+    margin: auto;
+    margin-top: 35px;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+}
+
+.styled-table thead tr th{
+    background-color: #d9d9d9;
+    color: rgba(0, 0, 0, 0.745);
+    border: 1.5px solid rgba(0, 0, 0, 0.259);
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+    border: 1.5px solid rgba(0, 0, 0, 0.259);
+}
+
+.styled-table tbody tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+.styled-table tbody tr:nth-child(odd){
+  background-color: #ffffff;
+}
+
+
+// .styled-table tbody td {
+//   padding: 10px;
+//   border: 1px solid #e0d7c3;
+//   color: #333333;
+// }
+
+.styled-table tbody tr:hover {
+  background-color: #dfdede3b; /* subtle gray on hover */
+}
+
+.leave-button{
+  display: 'block';
+  margin: 'auto';
+  width: 10%;
+}
+.iconWrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 8px; /* spacing between icons */
+  cursor: pointer;
+
+  .tooltip {
+    visibility: hidden;
+    opacity: 0;
+    width: max-content;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 4px 8px;
+    position: absolute;
+    top: 125%; /* positions it above icon */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 12px;
+    z-index: 10;
+    transition: opacity 0.2s;
+  }
+
+  &:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
 }

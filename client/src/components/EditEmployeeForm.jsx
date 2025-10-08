@@ -88,8 +88,9 @@ const EditEmployeeForm = ({ employee, onSave, onCancel, showBack }) => {
             <button
               type="button"
               onClick={onCancel}
+              className="button-teal"
               style={{
-                background: "#20b2aa", // teal
+                background: "rgb(2, 91, 91)", // teal
                 border: "none",
                 color: "#fff",
                 fontWeight: 600,
@@ -260,6 +261,7 @@ const EditEmployeeForm = ({ employee, onSave, onCancel, showBack }) => {
             <button
               type="submit"
               disabled={loading}
+              className="button-teal"
               style={{
                 background: "#007bff",
                 color: "#fff",
@@ -279,6 +281,7 @@ const EditEmployeeForm = ({ employee, onSave, onCancel, showBack }) => {
             <button
               type="button"
               onClick={onCancel}
+              className="button-teal"
               style={{
                 background: "#dc3545",
                 color: "#fff",
