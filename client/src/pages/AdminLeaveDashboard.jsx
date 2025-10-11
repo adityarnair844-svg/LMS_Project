@@ -14,26 +14,39 @@ const AdminLeaveDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMsg] = useState("")
   const [error, setError] = useState("");
-  useEffect(() => {
-    const fetchLeaves = async () => {
-      try {
-        const res = await axios.get("http://localhost:8800/api/leave/leaveTypes", {});
-        console.log("Fetched leave types:", res);
-        const data = Array.isArray(res.data) ? res.data : [res.data];
-        console.log("Data:", data[0]);
-        setLeaves(data);
 
-        if (data.length > 0) {
-          console.log("Leaves", leaves);
-          setIsEmpty(false);
-        }
+  const fetchLeaves = async () => {
+      try {
+        const res = await axios.get("http://localhost:8800/api/leave/leaveTypes");
+        const data = Array.isArray(res.data) ? res.data : [res.data];
+
+        // For each leave, check if it can be deleted
+        const leavesWithDeleteStatus = await Promise.all(
+          data.map(async (leave) => {
+            try {
+              const validateRes = await axios.get(
+                `http://localhost:8800/api/leave/validateDelete/${leave.leave_type_id}`
+              );
+              return { ...leave, canDelete: validateRes.data.canDelete };
+            } catch (err) {
+              console.error(err);
+              return { ...leave, canDelete: false }; // default safe
+            }
+          })
+        );
+
+        setLeaves(leavesWithDeleteStatus);
+        console.log(leaves);
+        setIsEmpty(leavesWithDeleteStatus.length === 0);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching employees:", err);
-        setError("Failed to load employees");
+        console.error("Error fetching leaves:", err);
+        setError("Failed to load leaves");
         setLoading(false);
       }
     };
+  useEffect(() => {
+    
     fetchLeaves();
   }, []);
 
@@ -49,6 +62,46 @@ const AdminLeaveDashboard = () => {
     {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)} onSuccess={() => setMsg("Leave Added Successfully !!!")} />}
     {message.length > 0 && alert(message)}
   </div>)
+
+  const handleDelete = async (leave_type_id) => {
+    const leave = leaves.find(l => l.leave_type_id === leave_type_id);
+    if (!leave.canDelete) return;
+
+    if (window.confirm("Are you sure you want to delete this leave type?")) {
+      try {
+        await axios.delete(`http://localhost:8800/api/leave/${leave_type_id}`);
+        setLeaves(leaves.filter(l => l.leave_type_id !== leave_type_id));
+        alert("Leave type deleted successfully!");
+      } catch (err) {
+        console.error(err);
+        alert("Error deleting leave type");
+      }
+    }
+  };
+
+  const handleSyncLeave = async (leave_type_id) => {
+  if (!window.confirm(`Are you sure you want to sync leave type ${leave_type_id} for all employees?`)) {
+    return;
+  }
+
+  try {
+    // Optional: disable button UI during request
+    setLoading(true);
+
+    const res = await axios.post(`http://localhost:8800/api/leave/syncLeave/${leave_type_id}`);
+    alert(`${res.data.message} (Added ${res.data.addedRows} records)`);
+    
+    // Optional: re-fetch updated data
+    // await fetchLeaves();
+
+  } catch (err) {
+    console.error("Sync error:", err);
+    alert("Error syncing leave: " + (err.response?.data?.message || err.message));
+  } finally {
+    setLoading(false);
+    fetchLeaves();
+  }
+};
 
 
 
@@ -102,13 +155,24 @@ const AdminLeaveDashboard = () => {
                 </span>
 
                 <span className="iconWrapper">
-                  <FaSync className="syncLeave" />
+                  <FaSync className="syncLeave"
+                    onClick={() => handleSyncLeave(leave.leave_type_id)}
+                    style={{ cursor: 'pointer' }} />
                   <span className="tooltip">Sync for all employees</span>
                 </span>
 
                 <span className="iconWrapper">
-                  <FaTrash className="deleteLeave" />
-                  <span className="tooltip">Delete</span>
+                  <FaTrash className="deleteLeave"
+                    onClick={() => handleDelete(leave.leave_type_id)}
+                    style={{
+                      color: leave.canDelete ? "#dc3545" : "#aaa",
+                      cursor: leave.canDelete ? "pointer" : "not-allowed",
+                    }} />
+                  <span className="tooltip">
+                    {leave.canDelete
+                      ? "Delete"
+                      : "Cannot delete, assigned to employees"}
+                  </span>
                 </span>
 
               </td>

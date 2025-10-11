@@ -202,3 +202,27 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-10-01  0:28:41
+
+ALTER TABLE leave_details DROP PRIMARY KEY
+
+
+ALTER TABLE leave_details 
+MODIFY leave_details_id INT NOT NULL AUTO_INCREMENT,
+ADD PRIMARY KEY (leave_details_id);
+
+
+
+CREATE TABLE `holidays` (
+  `holiday_id` int NOT NULL AUTO_INCREMENT,
+  `holiday_name` varchar(100) NOT NULL,
+  `holiday_date` date NOT NULL,
+  `holiday_type` enum('FIXED','OPTIONAL') NOT NULL,
+  `created_by` varchar(10) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`holiday_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `holidays_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `employee` (`employee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+

@@ -8,11 +8,6 @@ import {
     FaPlus,
     FaTrash,
 } from "react-icons/fa";
-import EmployeeForm from "../components/EmployeeForm";
-import EmployeeList from "../components/EmployeeList";
-import EditEmployeeForm from "../components/EditEmployeeForm";
-import EditEmployeeSearchModal from "../components/EditEmployeeSearchModal";
-import DeleteEmployeeSearchModal from "../components/DeleteEmployeeSearchModal";
 import { AuthContext } from "../context/authContext";
 
 
