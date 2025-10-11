@@ -70,19 +70,9 @@ const AdminLeaveDashboard = () => {
       }}>
       Add Leaves
     </button>
-    {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)} 
-    onSuccess={() => { setMsg("Leave Added Successfully !!!"); fetchLeaves() }}
-    onError={()=> setErrMsg("Error Adding Leave")} />}
-    <ToastContainer
-      position="top-center"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      pauseOnHover
-      theme="light"
-
-    />
+    {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)}
+      onSuccess={() => { setMsg("Leave Added Successfully !!!"); fetchLeaves() }}
+      onError={() => setErrMsg("Error Adding Leave")} />}
   </div>)
 
   const handleDelete = async (leave_type_id) => {
@@ -92,14 +82,15 @@ const AdminLeaveDashboard = () => {
     if (window.confirm("Are you sure you want to delete this leave type?")) {
       try {
         await axios.delete(`http://localhost:8800/api/leave/${leave_type_id}`);
-        setLeaves(leaves.filter(l => l.leave_type_id !== leave_type_id));
-        alert("Leave type deleted successfully!");
+        toast.success("Leave type deleted successfully!");
+        await fetchLeaves();
       } catch (err) {
         console.error(err);
-        alert("Error deleting leave type");
+        toast.error("Error deleting leave type");
       }
     }
   };
+
 
   const handleSyncLeave = async (leave_type_id) => {
     if (!window.confirm(`Are you sure you want to sync leave type ${leave_type_id} for all employees?`)) {
@@ -129,20 +120,13 @@ const AdminLeaveDashboard = () => {
 
   if (loading) return <div>Loading Leaves...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
-  return isEmpty ? (<div data-v-688e4c14="" style={{ backgroundColor: '#e9edf3', height: 'calc(100vh - 80px)' }}> <div data-test="content-block-21328732" data-v-688e4c14="" style={{ padding: 20 }}><div data-v-59266736="" data-v-688e4c14=""><div data-v-59266736="">
-    <img data-v-59266736="" data-test="v-img" src={NoResult} alt="" draggable="false" className="no-result" srcSet={NoResult} /></div>
-    {/* <button style={{ display: 'block' , margin: 'auto', width: '10%' }}
-          onClick={() => {
-            setShowAddLeaveForm(true);
-            console.log("Add Leaves clicked",showAddLeaveForm);
-        }}
-          >Add Leaves</button> */}
-    {addNewLeaves}
-  </div> </div>
-
-    {/* {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)}/>} */}
-  </div>
-  ) : (
+  return (<>
+    {isEmpty ? (<div data-v-688e4c14="" style={{ backgroundColor: '#e9edf3', height: 'calc(100vh - 80px)' }}> <div data-test="content-block-21328732" data-v-688e4c14="" style={{ padding: 20 }}><div data-v-59266736="" data-v-688e4c14=""><div data-v-59266736="">
+      <img data-v-59266736="" data-test="v-img" src={NoResult} alt="" draggable="false" className="no-result" srcSet={NoResult} /></div>
+      {addNewLeaves}
+    </div> </div>
+    </div>
+    ) : (
     <div style={{ width: "100%", margin: "auto" }}>
 
       <table className="styled-table">
@@ -204,7 +188,18 @@ const AdminLeaveDashboard = () => {
       </table>
       {addNewLeaves}
     </div>
-  );
+    )}
+
+    <ToastContainer
+      position="top-center"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      pauseOnHover
+      theme="light"
+    />
+  </>);
 
 };
 
