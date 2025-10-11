@@ -472,3 +472,40 @@
     opacity: 1;
   }
 }
+
+.employee-leave-dashboard {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* space between tables */
+  flex-wrap: nowrap; /* keep all in one row */
+  padding: 20px;
+  overflow-x: auto; /* allows scrolling if too many tables */
+}
+
+.leave-table {
+  border-collapse: collapse;
+  width: 220px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leave-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.centered {
+  text-align: center;
+}
+
+.value {
+  font-size: 20px;
+  color: #025b5b;
+}
+
+.label {
+  font-size: 13px;
+  color: #666;
+}

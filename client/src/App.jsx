@@ -12,6 +12,7 @@ import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLeaveDashboard from "./pages/AdminLeaveDashboard";
+import EmployeeLeaveDashboard from "./pages/EmployeeLeaveDashboard";
 
 
 const router = createBrowserRouter([
@@ -36,8 +37,8 @@ const router = createBrowserRouter([
         element: <CompDashboard />,
       },
       {
-        path: "/leavedashboard",
-        element: <LeaveDashboard />,
+        path: "/employee/leavedashboard",
+        element: <EmployeeLeaveDashboard />,
       },
       {
         path: "/optionalholiday",

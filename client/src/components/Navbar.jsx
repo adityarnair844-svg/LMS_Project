@@ -23,7 +23,7 @@ const Navbar = () => {
           {
             name: "Leave",
             dropdown: [
-              { name: "Leave Dashboard", path: "/leavedashboard" },
+              { name: "Leave Dashboard", path: "/employee/leavedashboard" },
               { name: "Optional Holiday Request", path: "/optionalholiday" },
               { name: "Leave Calendar", path: "/leavecalendar" },
               { name: "Compoff Dashboard", path: "/compdashboard" },
