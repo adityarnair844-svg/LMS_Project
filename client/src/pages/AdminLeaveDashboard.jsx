@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import NoResult from "../assets/NoResult.png";
 import AddLeaveForm from '../components/AddLeaveForm';
 import { FaEdit, FaTrash, FaSync } from 'react-icons/fa';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const AdminLeaveDashboard = () => {
@@ -12,43 +14,52 @@ const AdminLeaveDashboard = () => {
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [message, setMsg] = useState("")
+  const [message, setMsg] = useState("");
+  const [errorMessage, setErrMsg] = useState("")
   const [error, setError] = useState("");
 
   const fetchLeaves = async () => {
-      try {
-        const res = await axios.get("http://localhost:8800/api/leave/leaveTypes");
-        const data = Array.isArray(res.data) ? res.data : [res.data];
+    try {
+      const res = await axios.get("http://localhost:8800/api/leave/leaveTypes");
+      const data = Array.isArray(res.data) ? res.data : [res.data];
 
-        // For each leave, check if it can be deleted
-        const leavesWithDeleteStatus = await Promise.all(
-          data.map(async (leave) => {
-            try {
-              const validateRes = await axios.get(
-                `http://localhost:8800/api/leave/validateDelete/${leave.leave_type_id}`
-              );
-              return { ...leave, canDelete: validateRes.data.canDelete };
-            } catch (err) {
-              console.error(err);
-              return { ...leave, canDelete: false }; // default safe
-            }
-          })
-        );
+      // For each leave, check if it can be deleted
+      const leavesWithDeleteStatus = await Promise.all(
+        data.map(async (leave) => {
+          try {
+            const validateRes = await axios.get(
+              `http://localhost:8800/api/leave/validateDelete/${leave.leave_type_id}`
+            );
+            return { ...leave, canDelete: validateRes.data.canDelete };
+          } catch (err) {
+            console.error(err);
+            return { ...leave, canDelete: false }; // default safe
+          }
+        })
+      );
 
-        setLeaves(leavesWithDeleteStatus);
-        console.log(leaves);
-        setIsEmpty(leavesWithDeleteStatus.length === 0);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching leaves:", err);
-        setError("Failed to load leaves");
-        setLoading(false);
-      }
-    };
+      setLeaves(leavesWithDeleteStatus);
+      console.log(leaves);
+      setIsEmpty(leavesWithDeleteStatus.length === 0);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching leaves:", err);
+      setError("Failed to load leaves");
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    
+    if (message) {
+      toast.success(message);
+      setMsg("");
+    }
+    if(errorMessage){
+      toast.error(errorMessage);
+      setErrMsg("");
+    }
+
     fetchLeaves();
-  }, []);
+  }, [message, errorMessage]);
 
   const addNewLeaves = (<div style={{ padding: '30px' }}>
 
@@ -59,8 +70,19 @@ const AdminLeaveDashboard = () => {
       }}>
       Add Leaves
     </button>
-    {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)} onSuccess={() => setMsg("Leave Added Successfully !!!")} />}
-    {message.length > 0 && alert(message)}
+    {showAddLeaveForm && <AddLeaveForm closeModal={() => setShowAddLeaveForm(false)} 
+    onSuccess={() => { setMsg("Leave Added Successfully !!!"); fetchLeaves() }}
+    onError={()=> setErrMsg("Error Adding Leave")} />}
+    <ToastContainer
+      position="top-center"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      pauseOnHover
+      theme="light"
+
+    />
   </div>)
 
   const handleDelete = async (leave_type_id) => {
@@ -80,28 +102,28 @@ const AdminLeaveDashboard = () => {
   };
 
   const handleSyncLeave = async (leave_type_id) => {
-  if (!window.confirm(`Are you sure you want to sync leave type ${leave_type_id} for all employees?`)) {
-    return;
-  }
+    if (!window.confirm(`Are you sure you want to sync leave type ${leave_type_id} for all employees?`)) {
+      return;
+    }
 
-  try {
-    // Optional: disable button UI during request
-    setLoading(true);
+    try {
+      // Optional: disable button UI during request
+      setLoading(true);
 
-    const res = await axios.post(`http://localhost:8800/api/leave/syncLeave/${leave_type_id}`);
-    alert(`${res.data.message} (Added ${res.data.addedRows} records)`);
-    
-    // Optional: re-fetch updated data
-    // await fetchLeaves();
+      const res = await axios.post(`http://localhost:8800/api/leave/syncLeave/${leave_type_id}`);
+      alert(`${res.data.message} (Added ${res.data.addedRows} records)`);
 
-  } catch (err) {
-    console.error("Sync error:", err);
-    alert("Error syncing leave: " + (err.response?.data?.message || err.message));
-  } finally {
-    setLoading(false);
-    fetchLeaves();
-  }
-};
+      // Optional: re-fetch updated data
+      // await fetchLeaves();
+
+    } catch (err) {
+      console.error("Sync error:", err);
+      alert("Error syncing leave: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+      fetchLeaves();
+    }
+  };
 
 
 

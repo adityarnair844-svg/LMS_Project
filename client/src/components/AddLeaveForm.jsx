@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { FaTimes } from "react-icons/fa";
 
-const AddLeaveForm = ({ closeModal, onSuccess }) => {
+const AddLeaveForm = ({ closeModal, onSuccess, onError }) => {
     const [formData, setFormData] = useState({
         leave_type_id: "",
         leave_type_name: "",
@@ -10,7 +10,7 @@ const AddLeaveForm = ({ closeModal, onSuccess }) => {
         approval_type: "",
     });
 
-    const [msg, setMsg] = useState("");
+
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
@@ -25,14 +25,13 @@ const AddLeaveForm = ({ closeModal, onSuccess }) => {
         try {
             const res = await axios.post("http://localhost:8800/api/leave/addLeaves", formData);
             console.log("Add leave success:", res);
-            setMsg("Leave added successfully!");
             setLoading(false);
-            onSuccess(msg);
             closeModal();
+            onSuccess();
         } catch (err) {
             setLoading(false);
             console.error("Add leave error:", err);
-            setMsg("Error adding leave.");
+            onError();
         }
     };
 
@@ -136,11 +135,6 @@ const AddLeaveForm = ({ closeModal, onSuccess }) => {
                         </button>
                     </div>
                 </form>
-                {msg && (
-                    <p style={{ marginTop: 10, textAlign: "center", color: msg.includes("success") ? "green" : "red" }}>
-                        {msg}
-                    </p>
-                )}
             </div>
         </div>
     );
