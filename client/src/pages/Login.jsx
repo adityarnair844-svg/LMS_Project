@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -18,11 +18,12 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, currentUser } = useContext(AuthContext);
 
-  // Block access to login page if already authenticated
-  if (currentUser) {
-    navigate("/home", { replace: true });
-    return null;
-  }
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/home", { replace: true });
+    }
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     setInputs((prev) => ({
@@ -31,7 +32,6 @@ const Login = () => {
     }));
   };
 
-  //FOR EYE ICON
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -47,7 +47,6 @@ const Login = () => {
       setSuccess(res.data.message);
       navigate("/home", { replace: true });
     } catch (err) {
-      //AXIOS ERROR MESSAGE
       console.log(err);
       if (err.response && err.response.data) {
         setError(err.response.data);
@@ -60,7 +59,7 @@ const Login = () => {
 
   return (
     <div className="auth">
-      <h1>Login</h1>
+      <div className="styled-heading">Login</div>
       <form onSubmit={handleSubmit}>
         <input
           required
@@ -88,8 +87,7 @@ const Login = () => {
             Forgot Password
           </Link>
         </span>
-        <button type="submit" disabled={loading}>
-          {" "}
+        <button  className="button-teal" type="submit" disabled={loading}>
           {loading ? "Please wait..." : "Login"}
         </button>
         {error && <p>{error}</p>}

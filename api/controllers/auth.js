@@ -27,14 +27,30 @@ export const login = (req, res) => {
     //REMOVE PASSWORD BEFORE SENDING RESPONSE
     const { password: hashedPassword, ...other } = data[0];
 
-    res.cookie("access_token", token , {
-      httpOnly:true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax"
-    }).status(200).json({
-      message: "Login successful.",
-      user: other
-  });
+    db.query(
+    "SELECT first_name, last_name, email, phone_no FROM employee WHERE employee_id = ?",
+    [user.employee_id],
+    (err, rows) => {
+      if (err) return res.status(500).json("Database error while fetching employee info.");
+
+      // Merge data
+      const employeeInfo = rows[0];
+      const finalUser = { ...other, ...employeeInfo };
+      console.log("User data:", finalUser);
+
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
+        })
+        .status(200)
+        .json({
+          message: "Login successful.",
+          user: finalUser,
+        });
+    }
+  );
   });
 };
 

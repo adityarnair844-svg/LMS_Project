@@ -11,6 +11,7 @@ import CompDashboard from "./pages/CompDashboard";
 import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLeaveDashboard from "./pages/AdminLeaveDashboard";
 
 
 const router = createBrowserRouter([
@@ -20,7 +21,6 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/",
     element: <Layout />,
     children: [
       {
@@ -50,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "/myqueries",
         element: <MyQueries />,
+      },
+      {
+        path: "/admin/leavedashboard",
+        element: <AdminLeaveDashboard />,
       },
     ],
   },
