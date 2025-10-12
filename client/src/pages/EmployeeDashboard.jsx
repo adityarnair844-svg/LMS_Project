@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import CardBox from "../components/CardBox";
+import axios from "axios";
 import {
     FaUserCircle,
     FaUsers,
@@ -7,9 +8,10 @@ import {
     FaEdit,
     FaPlus,
     FaTrash,
+    FaInfoCircle
 } from "react-icons/fa";
 import { AuthContext } from "../context/authContext";
-
+import UserDetails from "../components/UserDetails";
 
 import { useEffect } from "react";
 
@@ -20,6 +22,7 @@ const EmployeeDashboard = () => {
     const [editEmployee, setEditEmployee] = useState(null);
     const [refreshList, setRefreshList] = useState(false);
     const [showDeleteList, setShowDeleteList] = useState(false);
+    const [showDetails, setShowDetails] = useState(null);
 
     // Debug: log when editEmployee changes
     React.useEffect(() => {
@@ -30,12 +33,13 @@ const EmployeeDashboard = () => {
 
     // Handle browser history for modal
     useEffect(() => {
-        if (showAddForm || showEditList || editEmployee) {
+        if (showAddForm || showEditList || editEmployee || showDetails) {
             window.history.pushState({ modal: true }, "");
             const handlePopState = (e) => {
                 setShowAddForm(false);
                 setShowEditList(false);
                 setEditEmployee(null);
+                setShowDetails(null);
             };
             window.addEventListener("popstate", handlePopState);
             return () => {
@@ -45,7 +49,23 @@ const EmployeeDashboard = () => {
                 }
             };
         }
-    }, [showAddForm, showEditList, editEmployee]);
+    }, [showAddForm, showEditList, editEmployee, showDetails]);
+
+    // Fetch full user details just like AdminDashboard
+    const handleShowDetails = async () => {
+        if (!currentUser) return;
+
+        try {
+            const res = await axios.get(
+                `http://localhost:8800/api/employee/${currentUser.employee_id}`,
+                { withCredentials: true }
+            );
+            setShowDetails(res.data); // now contains all fields including designation & department
+        } catch (err) {
+            console.error("Failed to fetch user details:", err);
+            alert("Could not load user details");
+        }
+    };
 
     return (
         <>
@@ -58,8 +78,8 @@ const EmployeeDashboard = () => {
                         title="My Profile"
                         icon={<FaUserCircle size={30} color="#000" />}
                         action={
-                            <button className="edit-profile">
-                                <FaEdit />
+                            <button className="edit-profile" onClick={handleShowDetails}>
+                                <FaInfoCircle />
                             </button>
                         }
                     >
@@ -76,21 +96,26 @@ const EmployeeDashboard = () => {
                             ) : (
                                 <p>Loading...</p>
                             )}
-
                         </div>
                     </CardBox>
-
                 </div>
 
                 {/* Right side */}
                 <div className="dashboard-right">
                     <CardBox title="Announcements" icon={<FaBullhorn />}>
-                        <div>
-
-                        </div>
+                        <div></div>
                     </CardBox>
                 </div>
             </div>
+
+            {/* User Details Modal */}
+            {showDetails && (
+                <UserDetails
+                    employee={showDetails} // full details fetched from backend
+                    onBack={() => setShowDetails(false)}
+                    showBack
+                />
+            )}
         </>
     );
 };

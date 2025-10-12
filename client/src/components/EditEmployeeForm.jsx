@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import { FaArrowLeft } from "react-icons/fa";
 
-const EditEmployeeForm = ({ employee, onSave, onCancel, showBack }) => {
+const EditEmployeeForm = ({ employee, onSave, onCancel, showBack, onBack  }) => {
   // Debug: log received employee prop
   console.log("EditEmployeeForm received employee:", employee);
   if (!employee || !employee.employee_id) return null;
@@ -87,24 +88,24 @@ const EditEmployeeForm = ({ employee, onSave, onCancel, showBack }) => {
           {showBack && (
             <button
               type="button"
-              onClick={onCancel}
-              className="button-teal"
+              onClick={onBack}
+              
               style={{
-                background: "rgb(2, 91, 91)", // teal
+                background: "white", // teal
                 border: "none",
-                color: "#fff",
+                color: "grey",
                 fontWeight: 600,
-                fontSize: 13,
+                fontSize: 20,
                 borderRadius: 6,
                 padding: "6px 13px",
                 marginRight: 8,
                 cursor: "pointer",
                 transition: "background 0.2s",
               }}
-              onMouseOver={(e) => (e.target.style.background = "#5ee6e6")}
-              onMouseOut={(e) => (e.target.style.background = "#20b2aa")}
+              onMouseOver={(e) => (e.target.style.color = "#5ee6e6")}
+              onMouseOut={(e) => (e.target.style.color = "grey")}
             >
-              &#8592; Back
+               <FaArrowLeft /> 
             </button>
           )}
           <h2 style={{ margin: 0, color: "#007bff", flex: 1 }}>

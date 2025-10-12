@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import NoResult from "../assets/NoResult.png";
 import AddLeaveForm from '../components/AddLeaveForm';
+import EditLeaveForm from '../components/EditLeaveForm';
 import { FaEdit, FaTrash, FaSync } from 'react-icons/fa';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,11 +13,14 @@ const AdminLeaveDashboard = () => {
 
   const [leaves, setLeaves] = useState([]);
   const [showAddLeaveForm, setShowAddLeaveForm] = useState(false);
+  const [showEditLeaveForm, setShowEditLeaveForm] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [loading, setLoading] = useState(true);
   const [message, setMsg] = useState("");
   const [errorMessage, setErrMsg] = useState("")
   const [error, setError] = useState("");
+  const [selectedLeave, setSelectedLeave] = useState(null);
+
 
   const fetchLeaves = async () => {
     try {
@@ -78,12 +82,13 @@ const AdminLeaveDashboard = () => {
   const handleDelete = async (leave_type_id) => {
     const leave = leaves.find(l => l.leave_type_id === leave_type_id);
     if (!leave.canDelete) return;
-
     if (window.confirm("Are you sure you want to delete this leave type?")) {
       try {
-        await axios.delete(`http://localhost:8800/api/leave/${leave_type_id}`);
+        const res = await axios.delete(`http://localhost:8800/api/leave/${leave_type_id}`);
+        console.log("Bro plsssssss",res.data);
+
         toast.success("Leave type deleted successfully!");
-        await fetchLeaves();
+        fetchLeaves();
       } catch (err) {
         console.error(err);
         toast.error("Error deleting leave type");
@@ -156,7 +161,11 @@ const AdminLeaveDashboard = () => {
               </td>
               <td>
                 <span className="iconWrapper">
-                  <FaEdit className="editLeave" />
+                  <FaEdit className="editLeave" onClick={() => {
+                    setSelectedLeave(leave);
+        setShowEditLeaveForm(true);
+        console.log("Edit Leaves clicked", showEditLeaveForm); 
+        }}/>
                   <span className="tooltip">Edit</span>
                 </span>
 
@@ -187,6 +196,11 @@ const AdminLeaveDashboard = () => {
         </tbody>
       </table>
       {addNewLeaves}
+      {showEditLeaveForm && <EditLeaveForm closeModal={() => setShowEditLeaveForm(false)}
+      onSuccess={() => { setMsg("Leave Updated Successfully !!!"); fetchLeaves() }}
+      onError={() => setErrMsg("Error Updating Leave")} 
+       selectedLeave={selectedLeave}/>}
+     
     </div>
     )}
 
