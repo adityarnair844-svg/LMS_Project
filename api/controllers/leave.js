@@ -4,23 +4,22 @@ export const getLeaveTypes = async (req, res) => {
   const query = `
     SELECT * FROM leave_type;
   `;
-  db.query(query, (err, data) => {
-    if (err) return res.status(500).json("Database error: " + err.message);
-    console.log("Error:", err, "Data:", data);
-    if (!data || data.length === 0) {
-      console.log("No leaves found");
-      return res.status(200).json("No leaves found.");
-    }
-    return res.status(200).json(data);
-  });
+    db.query(query, (err, data) => {
+        if (err) return res.status(500).json("Database error: " + err.message);
+        // console.log("Error:", err, "Data:", data);
+        if (!data || data.length === 0) {
+            console.log("No leaves found");
+            return res.status(200).json("No leaves found.");
+        }
+        return res.status(200).json(data);
+    });
 };
 
 export const addLeaves = async (req, res) => {
-  const { leave_type_id, approval_type, leave_type_name, no_of_leaves } =
-    req.body;
+  const { leave_type_id, approval_type, leave_type_name, no_of_leaves } = req.body;
   const query =
     "INSERT INTO leave_type (leave_type_id, approval_type, leave_type_name, no_of_leaves_per_year) VALUES (?, ?, ?, ?)";
-  console.log("Inserting this stupid table");
+//   console.log("Inserting this table");
   db.query(
     query,
     [leave_type_id, approval_type, leave_type_name, no_of_leaves],
@@ -33,6 +32,8 @@ export const addLeaves = async (req, res) => {
       return res.status(201).json("Employee added successfully!");
     }
   );
+
+    
 };
 
 export const validateDelete = async (req, res) => {
@@ -129,6 +130,216 @@ WHERE
     return res.status(200).json(data);
   });
 };
+
+const generateLeaveApplicationId = async () => {
+    return new Promise((resolve, reject) => {
+        const la_query = "SELECT COUNT(*) as count FROM leave_application";
+        db.query(la_query, [], (err, data) => {
+            if (err) return reject(err);
+            const id = "LA" + String(data[0].count + 1).padStart(4, "0"); // e.g., LA0001
+            resolve(id);
+        });
+    });
+
+};
+
+export const applyLeave = async (req, res) => {
+    try {
+        const { leave_type_id, start_date, start_half, end_date, end_half, reason, status, employee_id } = req.body;
+
+        // Validate required fields
+        if (!leave_type_id || !start_date || !start_half || !end_date || !end_half || !reason || !status || !employee_id) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        const leave_application_id = await generateLeaveApplicationId();
+        console.log("LA:", leave_application_id)
+        const applied_date = new Date().toISOString().slice(0, 10); // current date in YYYY-MM-DD
+
+        // Determine number of leave days
+        let leave_days = 0;
+
+        const start = new Date(start_date);
+        const end = new Date(end_date);
+        const isSameDate = start_date === end_date;
+
+        const sessionToLeave = {
+            first_half: 0.5,
+            second_half: 0.5,
+            full_day: 1,
+        };
+
+        if (isSameDate) {
+            leave_days = sessionToLeave[end_half]; // For same day, just count session
+        } else {
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive of both dates
+            leave_days = diffDays; // You could adjust if sessions are half-days
+        }
+
+        // Default status_id mapping (assuming you have 'saved' => 1, 'submitted' => 2)
+        const statusMap = {
+            Pending: "1",
+            Saved: "2",
+        };
+        const status_id = statusMap[status];
+
+        // Insert into leave_application
+        const query = `
+      INSERT INTO leave_application 
+      (leave_application_id, leave_purpose, start_date, end_date, applied_date, leave_type_id, status_id, employee_id, status_note) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+
+        db.query(query, [
+            leave_application_id,
+            reason,
+            start_date,
+            end_date,
+            applied_date,
+            leave_type_id,
+            status_id,
+            employee_id,
+            null,
+        ], (err, data) => {
+            if (err) return res.status(500).json("Database error: " + err.message);
+            // console.log("Error:", err, "Data:", data);
+            return res.status(200).json({ message: `Leave ${status} successfully`, leave_application_id, leave_days });
+        });
+
+    } catch (err) {
+        console.error("Error applying leave:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const fetchSavedLeaves = async (req, res) => {
+    const { employee_id } = req.params;
+    const query = `
+    SELECT la.leave_application_id, lt.leave_type_name, la.start_date, la.end_date, la.applied_date
+    FROM leave_application la
+    JOIN leave_type lt ON la.leave_type_id = lt.leave_type_id
+    JOIN status s ON la.status_id = s.status_id
+    WHERE la.employee_id = ? AND s.status_name = ?
+  `;
+    db.query(query, [employee_id, "Saved"], (err, data) => {
+        console.log("Error:", err, "Data", data)
+        if (err) return res.status(500).json({ message: err.message });
+        return res.status(200).json(data);
+    });
+}
+
+
+export const deleteLeaveApplication = async (req, res) => {
+    try {
+        const { leave_application_id } = req.params;
+
+        if (!leave_application_id) {
+            return res.status(400).json({ message: "Leave application ID is required" });
+        }
+
+        const deleteQuery = `DELETE FROM leave_application WHERE leave_application_id = ?`;
+
+        db.query(deleteQuery, [leave_application_id], (err, result) => {
+            if (err) return res.status(500).json({ message: "Database error: " + err.message });
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ message: "Leave application not found" });
+            }
+
+            return res.status(200).json({ message: "Leave deleted successfully" });
+        });
+    } catch (err) {
+        console.error("Error deleting leave:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+export const submitLeaveApplication = async (req, res) => {
+    try {
+        const { leave_application_id } = req.body;
+
+        if (!leave_application_id) {
+            return res.status(400).json({ message: "Leave application ID is required" });
+        }
+
+        // Step 1️⃣: Fetch application details
+        const getAppQuery = `
+      SELECT la.leave_type_id, la.employee_id, la.start_date, la.end_date
+      FROM leave_application la
+      WHERE la.leave_application_id = ?
+    `;
+
+        db.query(getAppQuery, [leave_application_id], (err, result) => {
+            if (err) return res.status(500).json({ message: "Database error: " + err.message });
+            if (result.length === 0) return res.status(404).json({ message: "Leave application not found" });
+
+            const { leave_type_id, employee_id, start_date, end_date } = result[0];
+
+            // Step 2️⃣: Get status_id for "Pending"
+            const statusQuery = `SELECT status_id FROM status WHERE status_name = 'Pending'`;
+
+            db.query(statusQuery, (err, statusResult) => {
+                if (err) return res.status(500).json({ message: "Error fetching status: " + err.message });
+                if (statusResult.length === 0) return res.status(404).json({ message: "Pending status not found" });
+
+                const status_id = statusResult[0].status_id;
+
+                // Step 3️⃣: Calculate total leave days
+                const start = new Date(start_date);
+                const end = new Date(end_date);
+                const diffTime = Math.abs(end - start);
+                const leave_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive of both dates
+
+                // Step 4️⃣: Update leave_application status
+                const updateAppQuery = `
+          UPDATE leave_application
+          SET status_id = ?
+          WHERE leave_application_id = ?
+        `;
+
+                db.query(updateAppQuery, [status_id, leave_application_id], (err, updateResult) => {
+                    if (err) return res.status(500).json({ message: "Error updating application: " + err.message });
+
+                    // Step 5️⃣: Update leave_details (balanced_leaves ↓, used_leaves ↑)
+                    const updateLeaveDetailsQuery = `
+            UPDATE leave_details
+            SET balanced_leaves = balanced_leaves - ?
+            WHERE employee_id = ? AND leave_type_id = ?
+          `;
+
+                    db.query(updateLeaveDetailsQuery, [leave_days, employee_id, leave_type_id], (err, detailResult) => {
+                        if (err) return res.status(500).json({ message: "Error updating leave details: " + err.message });
+
+                        return res.status(200).json({
+                            message: "Leave submitted successfully",
+                            leave_application_id,
+                            leave_days,
+                            new_status: "Pending",
+                        });
+                    });
+                });
+            });
+        });
+    } catch (err) {
+        console.error("Error submitting leave:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getAppliedLeaves = async (req, res) => {
+    const { employee_id, leave_type_id } = req.params;
+    const la_query = "SELECT COUNT(*) as count FROM leave_application WHERE employee_id = ? AND leave_type_id = ?";
+    db.query(la_query, [employee_id, leave_type_id], (err, data) => {
+        if (err) return res.status(500).json({ message: "Error updating leave details: " + err.message });
+        console.log("Dataaaa:", data, employee_id, leave_type_id);
+        return res.status(200).json({ count: data[0].count, leaveId: leave_type_id });
+
+    });
+}
+
 
 export const deleteLeaves = (req, res) => {
   const { leave_type_id } = req.params;

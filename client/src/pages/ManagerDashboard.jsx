@@ -1,3 +1,11 @@
 import React from "react";
-const ManagerDashboard = () => <h1>Welcome Manager</h1>;
+import EmployeeDashboard from "./EmployeeDashboard";
+const ManagerDashboard = () => {
+
+    return (
+        <>
+            <EmployeeDashboard />
+        </>
+    )
+}
 export default ManagerDashboard;

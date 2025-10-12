@@ -6,13 +6,13 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./Layout";
 import LeaveCalendar from "./pages/LeaveCalendar";
-import LeaveDashboard from "./pages/LeaveDashboard";
 import CompDashboard from "./pages/CompDashboard";
 import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLeaveDashboard from "./pages/AdminLeaveDashboard";
 import EmployeeLeaveDashboard from "./pages/EmployeeLeaveDashboard";
+import LeaveRequest from "./components/LeaveRequest";
 
 
 const router = createBrowserRouter([
@@ -56,6 +56,10 @@ const router = createBrowserRouter([
         path: "/admin/leavedashboard",
         element: <AdminLeaveDashboard />,
       },
+      {
+        path: "/leaveRequest",
+        element: <LeaveRequest />,
+      }
     ],
   },
 
