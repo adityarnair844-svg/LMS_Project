@@ -12,6 +12,8 @@ import {
 } from "react-icons/fa";
 import { AuthContext } from "../context/authContext";
 import UserDetails from "../components/UserDetails";
+import Announcement from "../components/Announcement";
+
 
 import { useEffect } from "react";
 
@@ -103,8 +105,9 @@ const EmployeeDashboard = () => {
                 {/* Right side */}
                 <div className="dashboard-right">
                     <CardBox title="Announcements" icon={<FaBullhorn />}>
-                        <div></div>
-                    </CardBox>
+  <Announcement isAdmin={false} />
+</CardBox>
+
                 </div>
             </div>
 

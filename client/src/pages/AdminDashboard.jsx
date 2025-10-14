@@ -17,6 +17,8 @@ import EditEmployeeSearchModal from "../components/EditEmployeeSearchModal";
 import DeleteEmployeeSearchModal from "../components/DeleteEmployeeSearchModal";
 import { AuthContext } from "../context/authContext";
 import UserDetails from "../components/UserDetails";
+import Announcement from "../components/Announcement";
+
 
 
 import { useEffect } from "react";
@@ -135,12 +137,9 @@ const AdminDashboard = () => {
         {/* Right side */}
         <div className="dashboard-right">
           <CardBox title="Announcements" icon={<FaBullhorn />}>
-            <textarea
-              className="announcement-textarea"
-              placeholder="Write announcement here..."
-            />
-            <button className="btn">Save</button>
-          </CardBox>
+  <Announcement isAdmin={true} />
+</CardBox>
+
         </div>
       </div>
 
