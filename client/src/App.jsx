@@ -5,14 +5,15 @@ import "./style.scss";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./Layout";
-import LeaveCalendar from "./pages/LeaveCalendar";
-import LeaveDashboard from "./pages/LeaveDashboard";
+import LeaveCalendar from "./components/LeaveCalendar";
 import CompDashboard from "./pages/CompDashboard";
 import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLeaveDashboard from "./pages/AdminLeaveDashboard";
 import EmployeeLeaveDashboard from "./pages/EmployeeLeaveDashboard";
+import LeaveRequest from "./components/LeaveRequest";
+import LeaveApproval from "./components/LeaveApproval";
 
 
 const router = createBrowserRouter([
@@ -56,6 +57,15 @@ const router = createBrowserRouter([
         path: "/admin/leavedashboard",
         element: <AdminLeaveDashboard />,
       },
+      {
+        path: "/manager/approval",
+        element: <LeaveApproval />,
+      },
+
+      {
+        path: "/leaveRequest",
+        element: <LeaveRequest />,
+      }
     ],
   },
 

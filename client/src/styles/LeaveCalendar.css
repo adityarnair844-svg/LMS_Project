@@ -1,0 +1,169 @@
+.leave-calendar-container {
+  padding: 30px;
+  font-family: "Inter", sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  position: relative;
+}
+
+.leave-calendar-container .calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.leave-calendar-container .calendar-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+}
+
+.leave-calendar-container .calendar-header button {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.leave-calendar-container .calendar-header button:hover {
+  color: #000;
+}
+
+.leave-calendar-container .year-selector {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.leave-calendar-container .year-selector div {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #444;
+  transition: all 0.2s ease;
+}
+
+.leave-calendar-container .year-selector div:hover {
+  background-color: #eee;
+}
+
+.leave-calendar-container .year-selector .active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.leave-calendar-container .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.leave-calendar-container .calendar-day-header {
+  text-align: center;
+  font-weight: 600;
+  color: #666;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.leave-calendar-container .calendar-day-box {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  min-height: 90px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+  position: relative;
+}
+
+.leave-calendar-container .calendar-day-box:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transform: scale(1.02);
+}
+
+.leave-calendar-container .day-number {
+  text-align: right;
+  color: #444;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.leave-calendar-container .leave-icons {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.leave-calendar-container .icon {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.leave-calendar-container .icon.approved {
+  color: #4caf50;
+}
+.leave-calendar-container .icon.pending {
+  color: #ffb300;
+}
+.leave-calendar-container .icon.rejected {
+  color: #e57373;
+}
+.leave-calendar-container .icon.other {
+  color: #64b5f6;
+}
+
+.leave-calendar-container .dimmed {
+  background-color: #f5f5f5;
+  color: #aaa;
+}
+
+/* Tooltip specifically scoped to leave calendar */
+.leave-calendar-container .leave-tooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #333;
+  z-index: 1000;
+  transform: translate(-50%, -110%);
+  pointer-events: none;
+  width: 220px;
+}
+
+.leave-calendar-container .leave-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #ddd transparent transparent transparent;
+}
+
+
+.leave-calendar-container .tooltip-item {
+  margin-bottom: 4px;
+}
+
+.leave-calendar-container .tooltip-sub {
+  color: #777;
+  font-size: 12px;
+}
