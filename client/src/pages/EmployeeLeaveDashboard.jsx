@@ -4,12 +4,14 @@ import axios from "axios";
 import LeaveTable from '../components/LeaveTable';
 import { AuthContext } from "../context/authContext";
 import SavedLeaves from "../components/SavedLeaves";
+import LeaveCard from "../components/LeaveCard";
 
 const EmployeeLeaveDashboard = () => {
 
     const { currentUser } = useContext(AuthContext);
     const [leaves, setLeaves] = useState([]);
     const [appliedLeavesMap, setAppliedLeavesMap] = useState({});
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
     const fetchLeavesByEmployee = async () => {
@@ -30,7 +32,7 @@ const EmployeeLeaveDashboard = () => {
         const res = await axios.get(
           `http://localhost:8800/api/leave/getAppliedLeaves/${currentUser.employee_id}/${leave.leave_type_id}`
         );
-        map[leave.leave_type_id] = res.data.count || 0;
+        map[leave.leave_type_id] = res.data.appliedLeaves || 0;
       }
       setAppliedLeavesMap(map);
       console.log("Applied Leaves Map:", map);
@@ -54,17 +56,17 @@ const EmployeeLeaveDashboard = () => {
         <div>
             <div className="employee-leave-dashboard" >
                 {leaves.map((leave) => (
-                    <span key={leave.leave_type_id}>
-                        {leave.leave_type_name} Leave
+                    <span key={leave.leave_type_id} >
+                       <span style={{fontFamily: "serif", fontWeight: "550"}}> {leave.leave_type_name} Leave</span>
                         <LeaveTable leave={leave} appliedLeaves={appliedLeavesMap[leave.leave_type_id] || 0} />
                     </span>
                 ))}
             </div>
-            <div style={{margin: "12px"}}>
+            <div style={{margin: "12px", fontFamily: "serif"}}>
                 <button onClick={() => navigate("/leaveRequest")}>New Request &nbsp;&nbsp;&nbsp;<span style={{fontWeight: "bold", fontSize: "17px"}}>+</span></button>
             </div>
-
-            <SavedLeaves></SavedLeaves>
+            <LeaveCard />
+            <SavedLeaves onSuccess={()=>{setSuccess(true)}}></SavedLeaves>
         </div>
 
     );

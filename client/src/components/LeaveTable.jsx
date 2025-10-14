@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 const LeaveTable = ({ leave, appliedLeaves }) => {
 
   const formatLeaves = (value) => {
-    console.log(value)
+    // console.log(leave, appliedLeaves)
     if (value === null || value === undefined || value === "") return "0";
 
     const num = Number(String(value).trim()); // convert from string or number
-    console.log("Now returning:", (num.toString()));
+    // console.log("Now returning:", (num.toString()));
     if (Number.isNaN(num)) return "0";
 
         // If it's an integer like 2.00 → show "2"

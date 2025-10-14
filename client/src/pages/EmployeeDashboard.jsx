@@ -14,6 +14,8 @@ import { AuthContext } from "../context/authContext";
 import UserDetails from "../components/UserDetails";
 
 import { useEffect } from "react";
+import ManagerNotification from "../components/ManagerNotification";
+import LeaveNotification from "../components/LeaveNotification";
 
 const EmployeeDashboard = () => {
     const { currentUser } = useContext(AuthContext);
@@ -69,7 +71,8 @@ const EmployeeDashboard = () => {
 
     return (
         <>
-            <div className="admin-dashboard">
+            <div className="employee-dashboard">
+                <div className="employee-cards">
                 {/* Left side */}
                 <div className="dashboard-left">
                     {/* My Profile */}
@@ -106,6 +109,9 @@ const EmployeeDashboard = () => {
                         <div></div>
                     </CardBox>
                 </div>
+                </div>
+                <LeaveNotification />
+                <ManagerNotification />
             </div>
 
             {/* User Details Modal */}

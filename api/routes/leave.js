@@ -11,7 +11,12 @@ import {
   fetchSavedLeaves,
   deleteLeaveApplication,
   submitLeaveApplication,
-  getAppliedLeaves
+  getAppliedLeaves,
+  getLeaveSummary,
+  getPendingApprovalCount,
+  getPendingApprovals,
+  updateLeaveStatus,
+  getPendingSubmissionsCount
 } from "../controllers/leave.js";
 
 const router = express.Router();
@@ -28,5 +33,10 @@ router.post("/submitApplication",submitLeaveApplication);
 router.get("/getAppliedLeaves/:employee_id/:leave_type_id", getAppliedLeaves);
 router.delete("/:leave_type_id", deleteLeaves);
 router.put("/updateLeaves", updateLeaves);
+router.get("/summary/:employee_id", getLeaveSummary);
+router.get("/pendingApprovalsCount/:manager_id", getPendingApprovalCount)
+router.get("/pendingApprovals/:manager_id", getPendingApprovals);
+router.post("/updateStatus", updateLeaveStatus);
+router.get("/pendingSubmissions/:employee_id", getPendingSubmissionsCount);
 
 export default router;
