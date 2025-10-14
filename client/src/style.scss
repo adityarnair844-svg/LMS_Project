@@ -185,7 +185,7 @@
   grid-template-columns: 2fr 1fr;
   gap: 20px;
   padding: 20px;
-  height: calc(100vh - 80px); // full screen minus header
+  // max-height: calc(100vh - 80px); // full screen minus header
   align-items: start;         // ensures items align at the top, not stretch
 
   .dashboard-left,
@@ -300,6 +300,194 @@
       }
     }
   }
+
+  
+
+  /* Manage Employees */
+  .manage-employees {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 5px;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      width: 40%;
+      text-align: center;
+      transition: background-color 0.2s ease;
+
+      &.add {
+        background: rgb(12, 149, 12);
+        &:hover {
+          background: rgba(12, 149, 12, 0.849);
+        }
+      }
+
+      &.edit {
+        background: #35239c;
+        &:hover {
+          background: #35239cd8;
+        }
+      }
+
+      &.delete {
+        background: #dc3545;
+        &:hover {
+          background: #ff6666;
+        }
+      }
+    }
+  }
+
+  .announcement-textarea {
+    width: 100%;
+    height: 110px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    resize: none;
+  }
+}
+
+.employee-dashboard {
+  
+  // grid-template-columns: 2fr 1fr;
+  // gap: 20px;
+  // padding: 20px;
+  // max-height: calc(100vh - 80px); // full screen minus header
+  // align-items: start;         // ensures items align at the top, not stretch
+
+  .employee-cards {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+    align-items: start; 
+     grid-template-columns: 2fr 1fr;
+  }
+  .dashboard-left,
+  .dashboard-right {
+    display: grid;              // make each column a grid
+    grid-auto-rows: minmax(100px, auto); // rows sized automatically
+    gap: 20px;           // fill the grid row height
+  }
+  .dashboard-left {
+    grid-template-rows: repeat(1, 1fr); 
+    // min-height: 100%;
+  }
+
+  .dashboard-right {
+    grid-template-rows: repeat(1, 1fr); 
+    min-height: 100%;
+  }
+  .card-box {
+    flex: 1 1 auto;          // allow cards to grow equally inside each column 
+    background: #fff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    &.stretch {
+      flex: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 30px;
+
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        flex-grow: 1;
+      }
+
+      .card-icon {
+        font-size: 25px;
+        color: #333;
+        margin-right: 10px;
+      }
+
+      .card-action {
+        margin-left: auto;
+      }
+    }
+
+    .card-body {
+      margin-top: 10px;
+    }
+  }
+
+  /* Profile Card */
+  .card-box.profile-card {
+    display: flex;
+    flex-direction: column;
+
+    .edit-profile {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #28a745;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #5cd65c;
+      }
+      &:active {
+        background-color: black; // <-- added this
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .profile-card-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+
+      .profile-icon-big {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 0;
+        color: gray;
+      }
+    }
+  }
+
+  
 
   /* Manage Employees */
   .manage-employees {
@@ -503,9 +691,11 @@
 .value {
   font-size: 20px;
   color: #025b5b;
+  font-family: "serif";
 }
 
 .label {
   font-size: 13px;
   color: #666;
+  font-family: "serif";
 }

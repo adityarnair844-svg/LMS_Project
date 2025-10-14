@@ -36,7 +36,7 @@ const Navbar = () => {
       ? [
           {
             name: "Leave Approval",
-            path: "/leaveapproval",
+            path: "/manager/approval",
           },
         ]
       : []),

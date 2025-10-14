@@ -144,80 +144,79 @@ const generateLeaveApplicationId = async () => {
 };
 
 export const applyLeave = async (req, res) => {
-    try {
-        const { leave_type_id, start_date, start_half, end_date, end_half, reason, status, employee_id } = req.body;
+  try {
+    const {
+      leave_type_id,
+      start_date,
+      start_half,
+      end_date,
+      end_half,
+      reason,
+      status,       // "Saved" or "Pending"
+      employee_id,
+      num_days      // sent from frontend
+    } = req.body;
 
-        // Validate required fields
-        if (!leave_type_id || !start_date || !start_half || !end_date || !end_half || !reason || !status || !employee_id) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        const leave_application_id = await generateLeaveApplicationId();
-        console.log("LA:", leave_application_id)
-        const applied_date = new Date().toISOString().slice(0, 10); // current date in YYYY-MM-DD
-
-        // Determine number of leave days
-        let leave_days = 0;
-
-        const start = new Date(start_date);
-        const end = new Date(end_date);
-        const isSameDate = start_date === end_date;
-
-        const sessionToLeave = {
-            first_half: 0.5,
-            second_half: 0.5,
-            full_day: 1,
-        };
-
-        if (isSameDate) {
-            leave_days = sessionToLeave[end_half]; // For same day, just count session
-        } else {
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive of both dates
-            leave_days = diffDays; // You could adjust if sessions are half-days
-        }
-
-        // Default status_id mapping (assuming you have 'saved' => 1, 'submitted' => 2)
-        const statusMap = {
-            Pending: "1",
-            Saved: "2",
-        };
-        const status_id = statusMap[status];
-
-        // Insert into leave_application
-        const query = `
-      INSERT INTO leave_application 
-      (leave_application_id, leave_purpose, start_date, end_date, applied_date, leave_type_id, status_id, employee_id, status_note) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-
-        db.query(query, [
-            leave_application_id,
-            reason,
-            start_date,
-            end_date,
-            applied_date,
-            leave_type_id,
-            status_id,
-            employee_id,
-            null,
-        ], (err, data) => {
-            if (err) return res.status(500).json("Database error: " + err.message);
-            // console.log("Error:", err, "Data:", data);
-            return res.status(200).json({ message: `Leave ${status} successfully`, leave_application_id, leave_days });
-        });
-
-    } catch (err) {
-        console.error("Error applying leave:", err);
-        return res.status(500).json({ message: "Internal server error" });
+    // --- Validate required fields ---
+    if (!leave_type_id || !start_date || !start_half || !end_date || !end_half || !reason || !status || !employee_id || num_days === undefined) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-}
+
+    const leave_application_id = await generateLeaveApplicationId();
+    const applied_date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    // --- Fetch status_id from status table ---
+    const statusQuery = `SELECT status_id FROM status WHERE status_name = ? LIMIT 1`;
+    db.query(statusQuery, [status], (err, statusResult) => {
+      if (err) return res.status(500).json({ message: "DB error fetching status", error: err.message });
+      if (statusResult.length === 0) return res.status(400).json({ message: "Invalid status" });
+
+      const status_id = statusResult[0].status_id;
+
+      // --- Insert into leave_application ---
+      const insertQuery = `
+        INSERT INTO leave_application
+        (leave_application_id, leave_purpose, start_date, end_date, no_of_days, applied_date, 
+         leave_type_id, status_id, employee_id, status_note)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertQuery,
+        [
+          leave_application_id,
+          reason,
+          start_date,
+          end_date,
+          num_days,       // use frontend calculated days
+          applied_date,
+          leave_type_id,
+          status_id,
+          employee_id,
+          null
+        ],
+        (err, data) => {
+          if (err) return res.status(500).json({ message: "Database error", error: err.message });
+
+          return res.status(200).json({
+            message: `Leave ${status === "Saved" ? "saved" : "submitted"} successfully`,
+            leave_application_id,
+            leave_days: num_days
+          });
+        }
+      );
+    });
+  } catch (err) {
+    console.error("Error applying leave:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const fetchSavedLeaves = async (req, res) => {
     const { employee_id } = req.params;
     const query = `
-    SELECT la.leave_application_id, lt.leave_type_name, la.start_date, la.end_date, la.applied_date
+    SELECT la.leave_application_id, lt.leave_type_name, la.start_date, la.end_date, la.applied_date, la.no_of_days
     FROM leave_application la
     JOIN leave_type lt ON la.leave_type_id = lt.leave_type_id
     JOIN status s ON la.status_id = s.status_id
@@ -267,7 +266,7 @@ export const submitLeaveApplication = async (req, res) => {
 
         // Step 1️⃣: Fetch application details
         const getAppQuery = `
-      SELECT la.leave_type_id, la.employee_id, la.start_date, la.end_date
+      SELECT la.leave_type_id, la.employee_id, la.no_of_days
       FROM leave_application la
       WHERE la.leave_application_id = ?
     `;
@@ -276,7 +275,7 @@ export const submitLeaveApplication = async (req, res) => {
             if (err) return res.status(500).json({ message: "Database error: " + err.message });
             if (result.length === 0) return res.status(404).json({ message: "Leave application not found" });
 
-            const { leave_type_id, employee_id, start_date, end_date } = result[0];
+            const { leave_type_id, employee_id, no_of_days } = result[0];
 
             // Step 2️⃣: Get status_id for "Pending"
             const statusQuery = `SELECT status_id FROM status WHERE status_name = 'Pending'`;
@@ -287,11 +286,8 @@ export const submitLeaveApplication = async (req, res) => {
 
                 const status_id = statusResult[0].status_id;
 
-                // Step 3️⃣: Calculate total leave days
-                const start = new Date(start_date);
-                const end = new Date(end_date);
-                const diffTime = Math.abs(end - start);
-                const leave_days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive of both dates
+                // Step 3️⃣: Calculate total leave days - not required due to logic change
+                
 
                 // Step 4️⃣: Update leave_application status
                 const updateAppQuery = `
@@ -310,13 +306,13 @@ export const submitLeaveApplication = async (req, res) => {
             WHERE employee_id = ? AND leave_type_id = ?
           `;
 
-                    db.query(updateLeaveDetailsQuery, [leave_days, employee_id, leave_type_id], (err, detailResult) => {
+                    db.query(updateLeaveDetailsQuery, [no_of_days, employee_id, leave_type_id], (err, detailResult) => {
                         if (err) return res.status(500).json({ message: "Error updating leave details: " + err.message });
 
                         return res.status(200).json({
                             message: "Leave submitted successfully",
                             leave_application_id,
-                            leave_days,
+                            no_of_days,
                             new_status: "Pending",
                         });
                     });
@@ -330,15 +326,35 @@ export const submitLeaveApplication = async (req, res) => {
 };
 
 export const getAppliedLeaves = async (req, res) => {
-    const { employee_id, leave_type_id } = req.params;
-    const la_query = "SELECT COUNT(*) as count FROM leave_application WHERE employee_id = ? AND leave_type_id = ?";
-    db.query(la_query, [employee_id, leave_type_id], (err, data) => {
-        if (err) return res.status(500).json({ message: "Error updating leave details: " + err.message });
-        console.log("Dataaaa:", data, employee_id, leave_type_id);
-        return res.status(200).json({ count: data[0].count, leaveId: leave_type_id });
+    try {
+        const { employee_id, leave_type_id } = req.params;
 
-    });
-}
+        // SQL to sum no_of_days for pending leaves
+        const la_query = `
+            SELECT COALESCE(SUM(no_of_days), 0) AS total_applied
+            FROM leave_application
+            WHERE employee_id = ? 
+              AND leave_type_id = ? 
+              AND status_id = (SELECT status_id FROM status WHERE status_name = 'Pending' LIMIT 1)
+        `;
+
+        db.query(la_query, [employee_id, leave_type_id], (err, data) => {
+            if (err) {
+                console.error("Error fetching applied leaves:", err);
+                return res.status(500).json({ message: "Error fetching applied leaves: " + err.message });
+            }
+            console.log("Applied: ", data[0].total_applied)
+
+            return res.status(200).json({ 
+                appliedLeaves: data[0].total_applied, 
+                leave_type_id 
+            });
+        });
+    } catch (err) {
+        console.error("Internal error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 
 export const deleteLeaves = (req, res) => {
@@ -391,3 +407,133 @@ export const updateLeaves = (req, res) => {
     }
   );
 };
+
+// GET /api/leave/summary/:employee_id
+export const getLeaveSummary = (req, res) => {
+  const { employee_id } = req.params;
+
+  const query = `
+    SELECT 
+      s.status_name, 
+      COUNT(*) AS count
+    FROM leave_application la
+    JOIN status s ON la.status_id = s.status_id
+    WHERE la.employee_id = ?
+    GROUP BY s.status_name
+  `;
+
+  db.query(query, [employee_id], (err, data) => {
+    if (err) return res.status(500).json({ message: "DB error: " + err.message });
+
+    const stats = { saved: 0, pending: 0, approved: 0, rejected: 0 };
+
+    data.forEach(row => {
+      const name = row.status_name.toLowerCase();
+      if (name.includes("saved")) stats.saved = row.count;
+      else if (name.includes("pending")) stats.pending = row.count;
+      else if (name.includes("approved")) stats.approved = row.count;
+      else if (name.includes("rejected")) stats.rejected = row.count;
+    });
+
+    res.status(200).json(stats);
+  });
+};
+
+// GET /api/leave/pendingApprovals/:manager_id
+export const getPendingApprovalCount = (req, res) => {
+  const { manager_id } = req.params;
+
+  const query = `
+    SELECT COUNT(*) AS count
+    FROM leave_application la
+    JOIN employee e ON la.employee_id = e.employee_id
+    JOIN status s ON la.status_id = s.status_id
+    WHERE s.status_name = 'Pending'
+    AND e.manager_id = ?;
+  `;
+
+  db.query(query, [manager_id], (err, data) => {
+    if (err) return res.status(500).json({ message: "DB error: " + err.message });
+    res.status(200).json({ count: data[0]?.count || 0 });
+  });
+};
+
+
+
+
+// controller
+export const getPendingApprovals = async (req, res) => {
+  const { manager_id } = req.params;
+  const query = `
+    SELECT 
+      la.leave_application_id,
+      la.leave_purpose,
+      la.start_date,
+      la.end_date,
+      la.no_of_days,
+      la.applied_date,
+      lt.leave_type_name,
+      e.employee_id,
+      CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+      s.status_name
+    FROM leave_application la
+    JOIN employee e ON la.employee_id = e.employee_id
+    JOIN leave_type lt ON la.leave_type_id = lt.leave_type_id
+    JOIN status s ON la.status_id = s.status_id
+    WHERE e.manager_id = ? AND s.status_name = 'Pending'
+    ORDER BY la.applied_date DESC;
+  `;
+
+  db.query(query, [manager_id], (err, data) => {
+    if (err) return res.status(500).json({ message: "Error fetching leaves", error: err });
+    return res.status(200).json(data);
+  });
+};
+
+
+export const updateLeaveStatus = async (req, res) => {
+  const { leave_application_id, status_name, status_note } = req.body;
+
+  const getStatusIdQuery = "SELECT status_id FROM status WHERE status_name = ?";
+  db.query(getStatusIdQuery, [status_name], (err, result) => {
+    if (err || result.length === 0) return res.status(400).json({ message: "Invalid status" });
+
+    const status_id = result[0].status_id;
+    const updateQuery = `
+      UPDATE leave_application 
+      SET status_id = ?, status_note = ? 
+      WHERE leave_application_id = ?;
+    `;
+    db.query(updateQuery, [status_id, status_note, leave_application_id], (err2) => {
+      if (err2) return res.status(500).json({ message: "Error updating status", error: err2 });
+      return res.status(200).json({ message: "Status updated successfully" });
+    });
+  });
+};
+
+// Fetch pending submissions for a specific employee
+export const getPendingSubmissionsCount = (req, res) => {
+  const { employee_id } = req.params;
+
+  // Assuming status table has 'Pending Submission' as a valid status
+  const query = `
+    SELECT COUNT(*) AS count
+    FROM leave_application la
+    JOIN status s ON la.status_id = s.status_id
+    WHERE la.employee_id = ? AND s.status_name = 'Saved';
+  `;
+
+  db.query(query, [employee_id], (err, result) => {
+    if (err) {
+      console.error("Error fetching pending submissions:", err);
+      return res.status(500).json({ message: "Error fetching pending submissions" });
+    }
+    const count = result?.[0]?.count || 0;
+    res.status(200).json({ count });
+  });
+};
+
+
+
+
+

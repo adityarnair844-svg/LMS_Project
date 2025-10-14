@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLeaveDashboard from "./pages/AdminLeaveDashboard";
 import EmployeeLeaveDashboard from "./pages/EmployeeLeaveDashboard";
 import LeaveRequest from "./components/LeaveRequest";
+import LeaveApproval from "./components/LeaveApproval";
 
 
 const router = createBrowserRouter([
@@ -56,6 +57,11 @@ const router = createBrowserRouter([
         path: "/admin/leavedashboard",
         element: <AdminLeaveDashboard />,
       },
+      {
+        path: "/manager/approval",
+        element: <LeaveApproval />,
+      },
+
       {
         path: "/leaveRequest",
         element: <LeaveRequest />,
