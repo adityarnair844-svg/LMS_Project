@@ -16,7 +16,8 @@ import {
   getPendingApprovalCount,
   getPendingApprovals,
   updateLeaveStatus,
-  getPendingSubmissionsCount
+  getPendingSubmissionsCount,
+  calendar
 } from "../controllers/leave.js";
 
 const router = express.Router();
@@ -38,5 +39,6 @@ router.get("/pendingApprovalsCount/:manager_id", getPendingApprovalCount)
 router.get("/pendingApprovals/:manager_id", getPendingApprovals);
 router.post("/updateStatus", updateLeaveStatus);
 router.get("/pendingSubmissions/:employee_id", getPendingSubmissionsCount);
+router.get("/calendar/:employee_id",calendar);
 
 export default router;

@@ -5,7 +5,7 @@ import "./style.scss";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./Layout";
-import LeaveCalendar from "./pages/LeaveCalendar";
+import LeaveCalendar from "./components/LeaveCalendar";
 import CompDashboard from "./pages/CompDashboard";
 import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
