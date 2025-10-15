@@ -17,7 +17,10 @@ import {
   getPendingApprovals,
   updateLeaveStatus,
   getPendingSubmissionsCount,
-  calendar
+  calendar,
+  applyOptionalLeave,
+  removeOptionalLeave,
+  getAppliedOptionalLeaves
 } from "../controllers/leave.js";
 
 const router = express.Router();
@@ -40,5 +43,7 @@ router.get("/pendingApprovals/:manager_id", getPendingApprovals);
 router.post("/updateStatus", updateLeaveStatus);
 router.get("/pendingSubmissions/:employee_id", getPendingSubmissionsCount);
 router.get("/calendar/:employee_id",calendar);
-
+router.post("/applyOptional",applyOptionalLeave);
+router.post("/removeOptional", removeOptionalLeave);
+router.get("/appliedOptional/:employee_id", getAppliedOptionalLeaves);
 export default router;

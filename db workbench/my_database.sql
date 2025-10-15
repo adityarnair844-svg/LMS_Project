@@ -252,6 +252,9 @@ VALUES
 (11,'Guru Nanak Jayanti', '2025-11-05', 'FIXED', '8001'),
 (12,'Christmas Day', '2025-12-25', 'FIXED', '8001'),
 (13,'New Year’s Day', '2025-01-01', 'OPTIONAL', '8001'),
-(14,'Guru Govind Singh’s Birthday', '2025-01-06', 'OPTIONAL', '8001'),
-(15,'Makar Sankranti', '2025-01-14', 'OPTIONAL', '8001'),
-(16,'Jumat-ul-Vida', '2025-03-28', 'OPTIONAL', '8001');
+(14,'Chhath Puja', '2025-10-28', 'OPTIONAL', '8001'),
+(15,'Guru Nanak Jayanti', '2025-11-05', 'OPTIONAL', '8001'),
+(16,'Christmas Eve', '2025-12-24', 'OPTIONAL', '8001');
+
+
+
