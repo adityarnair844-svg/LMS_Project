@@ -162,7 +162,7 @@ const LeaveApprovalPage = () => {
                       }}
                     >
                       <span
-                        onClick={() => handleAction(leave, "APPROVED")}
+                        onClick={() => handleAction(leave, "Approved")}
                         style={{
                           cursor: "pointer",
                           fontSize: "20px",
@@ -180,7 +180,7 @@ const LeaveApprovalPage = () => {
                         ✓
                       </span>
                       <span
-                        onClick={() => handleAction(leave, "REJECTED")}
+                        onClick={() => handleAction(leave, "Rejected")}
                         style={{
                           cursor: "pointer",
                           fontSize: "20px",
@@ -229,7 +229,7 @@ const LeaveApprovalPage = () => {
             }}
           >
             <h3 style={{ color: "#045b5b", marginBottom: "16px" }}>
-              {selectedAction === "APPROVED" ? "Approve" : "Reject"} Leave
+              {selectedAction === "Approved" ? "Approve" : "Reject"} Leave
             </h3>
             <p>
               <strong>ID:</strong> {selectedLeave?.leave_application_id}
@@ -278,7 +278,7 @@ const LeaveApprovalPage = () => {
                 onClick={submitAction}
                 style={{
                   backgroundColor:
-                    selectedAction === "APPROVED" ? "green" : "#dc3545",
+                    selectedAction === "Approved" ? "green" : "#dc3545",
                   color: "white",
                   border: "none",
                   padding: "8px 14px",

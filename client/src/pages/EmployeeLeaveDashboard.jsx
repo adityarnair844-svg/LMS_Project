@@ -52,6 +52,14 @@ const EmployeeLeaveDashboard = () => {
     }
   }, [leaves]);
 
+  useEffect(() => {
+  if (success) {
+    fetchLeavesByEmployee();  // Refresh data
+    fetchAppliedLeaves();
+    setSuccess(false);        // Reset the flag
+  }
+}, [success]);
+
     return (
         <div>
             <div className="employee-leave-dashboard" >

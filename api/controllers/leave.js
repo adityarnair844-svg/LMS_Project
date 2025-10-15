@@ -133,15 +133,51 @@ WHERE
 
 const generateLeaveApplicationId = async () => {
   return new Promise((resolve, reject) => {
-    const la_query = "SELECT COUNT(*) as count FROM leave_application";
-    db.query(la_query, [], (err, data) => {
+    // Get the maximum numeric part used so far (substring from 3rd char onward)
+    const maxQuery =
+      "SELECT MAX(CAST(SUBSTRING(leave_application_id, 3) AS UNSIGNED)) AS maxId FROM leave_application";
+
+    db.query(maxQuery, (err, rows) => {
       if (err) return reject(err);
-      const id = "LA" + String(data[0].count + 1).padStart(4, "0"); // e.g., LA0001
-      resolve(id);
+
+      let nextNum = 1;
+      if (rows && rows[0] && rows[0].maxId != null) {
+        nextNum = parseInt(rows[0].maxId, 10) + 1;
+      }
+
+      const makeId = (n) => "LA" + String(n).padStart(4, "0");
+
+      // Try generated id and if already exists, increment and retry (safety limit)
+      const tryId = (n, attempts = 0) => {
+        const id = makeId(n);
+        const existsQuery =
+          "SELECT 1 FROM leave_application WHERE leave_application_id = ? LIMIT 1";
+        db.query(existsQuery, [id], (err2, existsRows) => {
+          if (err2) return reject(err2);
+
+          if (!existsRows || existsRows.length === 0) {
+            // id is free
+            return resolve(id);
+          }
+
+          // if exists, try next
+          if (attempts >= 1000) {
+            // safety: avoid infinite loop
+            return reject(
+              new Error(
+                "Could not generate unique leave_application_id after many attempts"
+              )
+            );
+          }
+          tryId(n + 1, attempts + 1);
+        });
+      };
+
+      tryId(nextNum);
     });
   });
-
 };
+
 
 export const applyLeave = async (req, res) => {
   try {
@@ -494,22 +530,82 @@ export const getPendingApprovals = async (req, res) => {
 export const updateLeaveStatus = async (req, res) => {
   const { leave_application_id, status_name, status_note } = req.body;
 
-  const getStatusIdQuery = "SELECT status_id FROM status WHERE status_name = ?";
-  db.query(getStatusIdQuery, [status_name], (err, result) => {
-    if (err || result.length === 0) return res.status(400).json({ message: "Invalid status" });
+  try {
+    // 1️⃣ Validate input
+    if (!leave_application_id || !status_name) {
+      return res.status(400).json({ message: "leave_application_id and status_name are required" });
+    }
 
-    const status_id = result[0].status_id;
-    const updateQuery = `
-      UPDATE leave_application 
-      SET status_id = ?, status_note = ? 
-      WHERE leave_application_id = ?;
-    `;
-    db.query(updateQuery, [status_id, status_note, leave_application_id], (err2) => {
-      if (err2) return res.status(500).json({ message: "Error updating status", error: err2 });
-      return res.status(200).json({ message: "Status updated successfully" });
+    // 2️⃣ Get status_id from status_name
+    const getStatusIdQuery = "SELECT status_id FROM status WHERE status_name = ?";
+    db.query(getStatusIdQuery, [status_name], (err, statusResult) => {
+      if (err) return res.status(500).json({ message: "Database error fetching status_id", error: err });
+      if (statusResult.length === 0) return res.status(400).json({ message: "Invalid status" });
+
+      const status_id = statusResult[0].status_id;
+
+      // 3️⃣ Update leave_application with new status
+      const updateQuery = `
+        UPDATE leave_application 
+        SET status_id = ?, status_note = ? 
+        WHERE leave_application_id = ?;
+      `;
+      db.query(updateQuery, [status_id, status_note, leave_application_id], (err2) => {
+        if (err2) return res.status(500).json({ message: "Error updating leave_application", error: err2 });
+
+        // 4️⃣ Fetch leave details to adjust balances if needed
+        const fetchLeaveDetailsQuery = `
+          SELECT la.no_of_days, la.employee_id, la.leave_type_id
+          FROM leave_application la
+          WHERE la.leave_application_id = ?;
+        `;
+        db.query(fetchLeaveDetailsQuery, [leave_application_id], (err3, leaveResult) => {
+          if (err3) return res.status(500).json({ message: "Error fetching leave details", error: err3 });
+          if (leaveResult.length === 0) return res.status(404).json({ message: "Leave application not found" });
+
+          const { no_of_days, employee_id, leave_type_id } = leaveResult[0];
+
+          // 5️⃣ Update leave_details based on status
+          let balanceQuery = "";
+          if (status_name == "Approved") {
+            balanceQuery = `
+              UPDATE leave_details
+              SET used_leaves = used_leaves + ?
+              WHERE employee_id = ? AND leave_type_id = ?;
+            `;
+          } else if (status_name == "Rejected") {
+            balanceQuery = `
+              UPDATE leave_details
+              SET balanced_leaves = balanced_leaves + ?
+              WHERE employee_id = ? AND leave_type_id = ?;
+            `;
+          }
+
+          if (!balanceQuery) {
+            // For statuses other than Approved/Rejected, just return success
+            console.log("status Name:", status_name);
+            return res.status(200).json({ message: "Status updated successfully (no balance change)" });
+            
+          }
+
+          db.query(balanceQuery, [no_of_days, employee_id, leave_type_id], (err4, balanceResult) => {
+            if (err4) {
+              return res.status(500).json({ message: "Error updating leave balance", error: err4 });
+            }
+
+            return res.status(200).json({
+              message: `Status updated successfully and leave balances adjusted for ${status_name}`,
+            });
+          });
+        });
+      });
     });
-  });
+  } catch (error) {
+    console.error("Error updating leave status:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 // Fetch pending submissions for a specific employee
 export const getPendingSubmissionsCount = (req, res) => {

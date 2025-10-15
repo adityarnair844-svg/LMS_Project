@@ -23,7 +23,7 @@ const Announcement = ({ isAdmin }) => {
       if (!isAdmin) {
         data = data
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .slice(0, 10); // latest 10
+          .slice(0, 10);
       }
       setAnnouncements(data);
     } catch (err) {
@@ -99,7 +99,7 @@ const Announcement = ({ isAdmin }) => {
   };
 
   return (
-    <div style={{ ...styles.container, width: "100%" }}>
+    <div style={styles.cardContainer}>
       {/* Admin: Add New */}
       {isAdmin && (
         <div style={styles.addBox}>
@@ -126,10 +126,10 @@ const Announcement = ({ isAdmin }) => {
         </div>
       )}
 
-      {loading && <p>Loading announcements...</p>}
+      {/* Scrollable Announcements List */}
+      <div style={styles.scrollableList}>
+        {loading && <p>Loading announcements...</p>}
 
-      {/* Announcements List */}
-      <div style={styles.list}>
         {announcements.length === 0 && !loading && <p>No announcements yet.</p>}
 
         {announcements.map((a) => {
@@ -143,7 +143,7 @@ const Announcement = ({ isAdmin }) => {
               >
                 <strong>{a.heading}</strong>
                 <small style={styles.date}>
-                Posted on {new Date(a.created_at).toLocaleDateString()}
+                  Posted on {new Date(a.created_at).toLocaleDateString()}
                 </small>
               </div>
             );
@@ -257,9 +257,20 @@ const Announcement = ({ isAdmin }) => {
 };
 
 const styles = {
-  container: {
+  cardContainer: {
+    display: "flex",
+    flexDirection: "column",
+    height: "600px", // fixed height for the card
+    width: "100%",
+    background: "#f5f5f5",
     padding: "15px",
-    fontFamily: "Segoe UI, sans-serif",
+    borderRadius: "12px",
+    boxSizing: "border-box",
+  },
+  scrollableList: {
+    overflowY: "auto",
+    flex: 1, // take remaining space
+    paddingRight: "5px",
   },
   addBox: {
     background: "#f9f9f9",
@@ -267,28 +278,15 @@ const styles = {
     borderRadius: "12px",
     padding: "20px",
     marginBottom: "15px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
   },
-  sectionTitle: {
-    marginBottom: "10px",
-    color: "#333",
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-    maxHeight: "400px",
-    overflowY: "auto",
-  },
+  sectionTitle: { marginBottom: "10px", color: "#333" },
   card: {
     background: "#fff",
     border: "1px solid #ddd",
     borderRadius: "12px",
     padding: "15px",
+    marginBottom: "10px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
   },
   bannerCard: {
     background: "#e6f7ff",
@@ -296,72 +294,22 @@ const styles = {
     borderRadius: "12px",
     padding: "10px 15px",
     cursor: "pointer",
-    width: "100%",
-    transition: "0.2s all",
-  },
-  heading: {
-    margin: "0 0 5px 0",
-    color: "#2b3e50",
-  },
-  content: {
-    color: "#444",
-    marginBottom: "8px",
-  },
-  expandedHeading: {
-    textAlign: "center",
-    fontSize: "1.3rem",
-    marginBottom: "10px",
-    color: "#025b5b",
-  },
-  expandedContent: {
-    fontSize: "1rem",
-    marginBottom: "15px",
-    color: "#333",
-    lineHeight: "1.5",
-  },
-  date: {
-    fontSize: "0.85rem",
-    color: "#777",
-    marginBottom: "10px",  
-
-  },
-  input: {
-    width: "100%",
-    padding: "8px",
-    marginBottom: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  textarea: {
-    width: "100%",
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    minHeight: "80px",
-    resize: "vertical",
     marginBottom: "10px",
   },
-  actionRow: {
-    display: "flex",
-    gap: "10px",
-  },
-  btn: {
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    color: "#fff",
-    width: "80px",
-    fontWeight: "500",
-    alignItems: "center",
-    gap: "6px",
-    
-  },
-  addBtn: { background: "#007bff" },
-  saveBtn: { background: "#28a745" },
-  cancelBtn: { background: "#6c757d" },
+  heading: { margin: "0 0 5px 0", color: "#2b3e50" },
+  content: { color: "#444", marginBottom: "8px" },
+  expandedHeading: { textAlign: "center", fontSize: "1.3rem", marginBottom: "10px", color: "#025b5b" },
+  expandedContent: { fontSize: "1rem", marginBottom: "15px", color: "#333", lineHeight: "1.5" },
+  date: { fontSize: "0.85rem", color: "#777", marginBottom: "10px" },
+  input: { width: "100%", padding: "8px", marginBottom: "10px", border: "1px solid #ccc", borderRadius: "6px" },
+  textarea: { width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "6px", minHeight: "80px", resize: "vertical", marginBottom: "10px" },
+  actionRow: { display: "flex", gap: "10px", marginTop: "10px" },
+  btn: { border: "none", padding: "8px 12px", borderRadius: "6px", cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", gap: "5px" },
+  addBtn: { background: "#1890ff" },
   editBtn: { background: "#ffc107", color: "#000" },
-  deleteBtn: { background: "#dc3545" },
+  deleteBtn: { background: "#f5222d" },
+  saveBtn: { background: "#52c41a" },
+  cancelBtn: { background: "#888" },
 };
 
 export default Announcement;
