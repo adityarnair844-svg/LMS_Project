@@ -234,3 +234,24 @@ CREATE TABLE announcement (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (announcement_id)
 );
+
+
+INSERT INTO holidays 
+(holiday_id, holiday_name, holiday_date, holiday_type, created_by) 
+VALUES
+(1,'Holi', '2025-03-14', 'FIXED', '8001'),
+(2,'Id-ul-Fitr', '2025-03-31', 'FIXED', '8001'),
+(3,'Mahavir Jayanti', '2025-04-10', 'FIXED', '8001'),
+(4,'Good Friday', '2025-04-18', 'FIXED', '8001'),
+(5,'Buddha Purnima', '2025-05-12', 'FIXED', '8001'),
+(6,'Independence Day', '2025-08-15', 'FIXED', '8001'),
+(7,'Ganesh Chaturthi', '2025-08-27', 'FIXED', '8001'),
+(8,'Milad-un-Nabi / Id-e-Milad', '2025-09-05', 'FIXED', '8001'),
+(9,'Gandhi Jayanti', '2025-10-02', 'FIXED', '8001'),
+(10,'Diwali (Deepavali)', '2025-10-21', 'FIXED', '8001'),
+(11,'Guru Nanak Jayanti', '2025-11-05', 'FIXED', '8001'),
+(12,'Christmas Day', '2025-12-25', 'FIXED', '8001'),
+(13,'New Year’s Day', '2025-01-01', 'OPTIONAL', '8001'),
+(14,'Guru Govind Singh’s Birthday', '2025-01-06', 'OPTIONAL', '8001'),
+(15,'Makar Sankranti', '2025-01-14', 'OPTIONAL', '8001'),
+(16,'Jumat-ul-Vida', '2025-03-28', 'OPTIONAL', '8001');
