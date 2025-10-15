@@ -585,7 +585,7 @@ export const updateLeaveStatus = async (req, res) => {
             // For statuses other than Approved/Rejected, just return success
             console.log("status Name:", status_name);
             return res.status(200).json({ message: "Status updated successfully (no balance change)" });
-            
+
           }
 
           db.query(balanceQuery, [no_of_days, employee_id, leave_type_id], (err4, balanceResult) => {
@@ -647,9 +647,200 @@ export const calendar = (req, res) => {
       return res.status(200).json(result);
     }
   );
-  
+
 };
 
+
+export const applyOptionalLeave = async (req, res) => {
+  const { employee_id, holiday_date, holiday_name } = req.body;
+
+  if (!employee_id || !holiday_date) {
+    return res.status(400).json({ success: false, message: "Missing employee_id or holiday_date" });
+  }
+
+  try {
+    // 1️⃣ Get leave_type_id for Optional leave
+    const leaveTypeRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT leave_type_id FROM leave_type WHERE leave_type_name = 'Optional'",
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (leaveTypeRows.length === 0)
+      return res.status(404).json({ success: false, message: "Optional leave type not found" });
+
+    const leave_type_id = leaveTypeRows[0].leave_type_id;
+
+    // 2️⃣ Get leave_details for employee
+    const leaveDetailsRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT * FROM leave_details WHERE employee_id = ? AND leave_type_id = ?",
+        [employee_id, leave_type_id],
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (leaveDetailsRows.length === 0)
+      return res.status(404).json({ success: false, message: "Leave details not found for employee" });
+
+    const leaveDetails = leaveDetailsRows[0];
+
+    if (leaveDetails.balanced_leaves <= 0)
+      return res.status(400).json({ success: false, message: "Insufficient leave balance" });
+
+    // 3️⃣ Get status_id for 'Approved'
+    const statusRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT status_id FROM status WHERE status_name = 'Approved'",
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (statusRows.length === 0)
+      return res.status(404).json({ success: false, message: "'Approved' status not found" });
+
+    const status_id = statusRows[0].status_id;
+
+    // 4️⃣ Generate leave_application_id
+    const leave_application_id = await generateLeaveApplicationId();
+
+    // 5️⃣ Insert into leave_application (auto-approved)
+    await new Promise((resolve, reject) => {
+      const insertQuery = `
+        INSERT INTO leave_application
+        (leave_application_id, leave_purpose, start_date, end_date, no_of_days, applied_date, leave_type_id, status_id, employee_id)
+        VALUES (?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)`;
+
+      db.query(
+        insertQuery,
+        [leave_application_id, holiday_name || "Optional Holiday", holiday_date, holiday_date, 1.0, leave_type_id, status_id, employee_id],
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    // 6️⃣ Update leave_details
+    await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE leave_details SET balanced_leaves = balanced_leaves - 1, used_leaves = used_leaves + 1 WHERE leave_details_id = ?",
+        [leaveDetails.leave_details_id],
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    return res.status(200).json({ success: true, message: "Optional leave applied successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+
+export const removeOptionalLeave = async (req, res) => {
+  const { employee_id, holiday_date } = req.body;
+
+  if (!employee_id || !holiday_date)
+    return res.status(400).json({ success: false, message: "Missing employee_id or holiday_date" });
+
+  try {
+    // 1️⃣ Get leave_type_id for Optional leave
+    const leaveTypeRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT leave_type_id FROM leave_type WHERE leave_type_name = 'Optional'",
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (leaveTypeRows.length === 0)
+      return res.status(404).json({ success: false, message: "Optional leave type not found" });
+
+    const leave_type_id = leaveTypeRows[0].leave_type_id;
+
+    // 2️⃣ Delete from leave_application
+    const deleteResult = await new Promise((resolve, reject) => {
+      db.query(
+        "DELETE FROM leave_application WHERE employee_id = ? AND leave_type_id = ? AND start_date = ?",
+        [employee_id, leave_type_id, holiday_date],
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    if (!deleteResult.affectedRows)
+      return res.status(404).json({ success: false, message: "Applied leave not found" });
+
+    // 3️⃣ Update leave_details
+    await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE leave_details SET balanced_leaves = balanced_leaves + 1, used_leaves = used_leaves - 1 WHERE employee_id = ? AND leave_type_id = ?",
+        [employee_id, leave_type_id],
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    return res.status(200).json({ success: true, message: "Optional leave removed successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+export const getAppliedOptionalLeaves = async (req, res) => {
+  const { employee_id } = req.params;
+
+  if (!employee_id)
+    return res.status(400).json({ success: false, message: "Missing employee_id" });
+
+  try {
+    // 1️⃣ Get leave_type_id for Optional leave
+    const leaveTypeRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT leave_type_id FROM leave_type WHERE leave_type_name = 'Optional'",
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (leaveTypeRows.length === 0)
+      return res.status(404).json({ success: false, message: "Optional leave type not found" });
+
+    const leave_type_id = leaveTypeRows[0].leave_type_id;
+
+    // 2️⃣ Get status_id for 'Approved'
+    const statusRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT status_id FROM status WHERE status_name = 'Approved'",
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (statusRows.length === 0)
+      return res.status(404).json({ success: false, message: "'Approved' status not found" });
+
+    const status_id = statusRows[0].status_id;
+
+    // 3️⃣ Get applied leaves from leave_application
+    const appliedLeaves = await new Promise((resolve, reject) => {
+      const getAppliedQuery = `
+        SELECT 
+    DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date,
+    DATE_FORMAT(end_date, '%Y-%m-%d') AS end_date,
+    leave_purpose
+  FROM leave_application
+  WHERE employee_id = ? AND leave_type_id = ? AND status_id = ?
+
+      `;
+      db.query(getAppliedQuery, [employee_id, leave_type_id, status_id], (err, rows) =>
+        err ? reject(err) : resolve(rows)
+      );
+    });
+
+    return res.status(200).json({ success: true, appliedLeaves });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 
 
