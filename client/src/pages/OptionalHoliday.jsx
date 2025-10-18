@@ -149,7 +149,8 @@ const OptionalHoliday = () => {
       <h2 style={styles.heading}>Optional Leave Application</h2>
       <p>
         Balance Leaves:{" "}
-        {Math.max(leaveDetails.balanced_leaves - selectedHolidays.length, 0)}
+        {/*{Math.max(leaveDetails.balanced_leaves - selectedHolidays.length, 0)} */}
+        {leaveDetails.balanced_leaves}
       </p>
 
       <div style={styles.tableWrapper}>

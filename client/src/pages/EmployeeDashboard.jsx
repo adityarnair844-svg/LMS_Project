@@ -8,6 +8,7 @@ import {
     FaEdit,
     FaPlus,
     FaTrash,
+    FaHourglassHalf,
     FaInfoCircle
 } from "react-icons/fa";
 import { AuthContext } from "../context/authContext";
@@ -103,6 +104,13 @@ const EmployeeDashboard = () => {
                             )}
                         </div>
                     </CardBox>
+                    <CardBox title="My Pending Request" icon={<FaHourglassHalf />}>
+            
+              <LeaveNotification />
+                <ManagerNotification />
+
+            
+          </CardBox>
                 </div>
 
                 {/* Right side */}
@@ -113,8 +121,8 @@ const EmployeeDashboard = () => {
 
                 </div>
                 </div>
-                <LeaveNotification />
-                <ManagerNotification />
+                { /* <LeaveNotification />
+                <ManagerNotification /> */ }
             </div>
 
             {/* User Details Modal */}

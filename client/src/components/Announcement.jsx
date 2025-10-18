@@ -99,7 +99,13 @@ const Announcement = ({ isAdmin }) => {
   };
 
   return (
-    <div style={styles.cardContainer}>
+  <div
+    style={{
+      ...styles.cardContainer,
+      height: isAdmin ? "600px" : "310px", // 👈 fixed height for employee/manager
+    }}
+  >
+
       {/* Admin: Add New */}
       {isAdmin && (
         <div style={styles.addBox}>
