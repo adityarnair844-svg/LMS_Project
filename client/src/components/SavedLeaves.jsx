@@ -113,13 +113,13 @@ const SavedLeaves = ({ onSuccess }) => {
                                             style={styles.actionButton}
                                             onClick={() => handleSubmit(leave.leave_application_id)}
                                         >
-                                            <FaCheck />
+                                            <FaCheck style={{ color: "green" }} />
                                         </button>
                                         <button
                                             style={{ ...styles.actionButton, marginLeft: "8px" }}
                                             onClick={() => handleDelete(leave.leave_application_id)}
                                         >
-                                            <FaTrash />
+                                            <FaTrash style={{ color: "red" }} />
                                         </button>
                                     </td>
                                 </tr>

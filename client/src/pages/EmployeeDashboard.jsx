@@ -17,7 +17,6 @@ import Announcement from "../components/Announcement";
 
 
 import { useEffect } from "react";
-import ManagerNotification from "../components/ManagerNotification";
 import LeaveNotification from "../components/LeaveNotification";
 
 const EmployeeDashboard = () => {
@@ -28,6 +27,8 @@ const EmployeeDashboard = () => {
     const [refreshList, setRefreshList] = useState(false);
     const [showDeleteList, setShowDeleteList] = useState(false);
     const [showDetails, setShowDetails] = useState(null);
+    const [hasLeavePending, setHasLeavePending] = useState(false);
+
 
     // Debug: log when editEmployee changes
     React.useEffect(() => {
@@ -104,13 +105,27 @@ const EmployeeDashboard = () => {
                             )}
                         </div>
                     </CardBox>
-                    <CardBox title="My Pending Request" icon={<FaHourglassHalf />}>
-            
-              <LeaveNotification />
-                <ManagerNotification />
+                   <CardBox title="My Pending Request" icon={<FaHourglassHalf />}>
+  <LeaveNotification onPendingChange={setHasLeavePending} />
 
-            
-          </CardBox>
+  {/* Show fallback only when there are no pending ones */}
+  {!hasLeavePending && (
+    <div
+      style={{
+        textAlign: "center",
+        color: "red",
+        padding: "6px",
+        fontStyle: "italic",
+      }}
+    >
+      No pending leave requests
+    </div>
+  )}
+
+  
+</CardBox>
+
+
                 </div>
 
                 {/* Right side */}

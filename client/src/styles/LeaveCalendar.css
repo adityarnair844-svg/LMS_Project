@@ -1,12 +1,12 @@
 .leave-calendar-container {
   padding: 30px;
   font-family: "Inter", sans-serif;
-  background-color: #f9fafb;
+  background-color: #f4f6f9;
   min-height: 100vh;
   position: relative;
 }
 
-.leave-calendar-container .calendar-header {
+.calendar-header {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,140 +14,156 @@
   margin-bottom: 24px;
 }
 
-.leave-calendar-container .calendar-header h2 {
-  font-size: 22px;
-  font-weight: 600;
-  color: #333;
+.calendar-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
   cursor: pointer;
   position: relative;
 }
 
-.leave-calendar-container .calendar-header button {
-  background: none;
+.calendar-header button {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: none;
-  color: #555;
+  color: #fff;
   font-size: 20px;
   cursor: pointer;
-  transition: color 0.2s ease;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.leave-calendar-container .calendar-header button:hover {
-  color: #000;
+.calendar-header button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
-.leave-calendar-container .year-selector {
+.year-selector {
   display: flex;
   justify-content: center;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.leave-calendar-container .year-selector div {
-  padding: 6px 12px;
+.year-selector div {
+  padding: 8px 14px;
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  color: #444;
+  color: #1f2937;
   transition: all 0.2s ease;
 }
 
-.leave-calendar-container .year-selector div:hover {
-  background-color: #eee;
+.year-selector div:hover {
+  background-color: #dbeafe;
 }
 
-.leave-calendar-container .year-selector .active {
-  background-color: #007bff;
+.year-selector .active {
+  background-color: #2563eb;
   color: white;
-  border-color: #007bff;
+  border-color: #2563eb;
 }
 
-.leave-calendar-container .calendar-grid {
+.calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
-.leave-calendar-container .calendar-day-header {
+.calendar-day-header {
   text-align: center;
   font-weight: 600;
-  color: #666;
-  padding: 8px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.leave-calendar-container .calendar-day-box {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  min-height: 90px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: box-shadow 0.2s ease, transform 0.1s ease;
-  position: relative;
-}
-
-.leave-calendar-container .calendar-day-box:hover {
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  transform: scale(1.02);
-}
-
-.leave-calendar-container .day-number {
-  text-align: right;
-  color: #444;
-  font-weight: 500;
+  color: #6b7280;
+  padding: 10px 0;
+  border-bottom: 2px solid #e5e7eb;
   font-size: 14px;
 }
 
-.leave-calendar-container .leave-icons {
+.calendar-day-header.weekend {
+  color: #ef4444;
+}
+
+.calendar-day-box {
+  background: #fff;
+  border-radius: 12px;
+  min-height: 100px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.calendar-day-box.empty {
+  background: transparent;
+  border: none;
+}
+
+.calendar-day-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border-color: #c7d2fe;
+}
+
+.day-number {
+  text-align: right;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.calendar-day-box.today {
+  border: 2px solid #2563eb;
+}
+
+.leave-icons {
   display: flex;
   gap: 4px;
-  justify-content: flex-start;
   flex-wrap: wrap;
 }
 
-.leave-calendar-container .icon {
-  font-size: 16px;
-  opacity: 0.9;
+.icon {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
 }
 
-.leave-calendar-container .icon.approved {
-  color: #4caf50;
-}
-.leave-calendar-container .icon.pending {
-  color: #ffb300;
-}
-.leave-calendar-container .icon.rejected {
-  color: #e57373;
-}
-.leave-calendar-container .icon.other {
-  color: #64b5f6;
+.icon.approved { color: #fff; background-color: #22c55e; }
+.icon.pending { color: #fff; background-color: #fbbf24; }
+.icon.rejected { color: #fff; background-color: #ef4444; }
+.icon.other { color: #fff; background-color: #3b82f6; }
+
+.dimmed {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  filter: brightness(0.95);
 }
 
-.leave-calendar-container .dimmed {
-  background-color: #f5f5f5;
-  color: #aaa;
-}
-
-/* Tooltip specifically scoped to leave calendar */
-.leave-calendar-container .leave-tooltip {
+.leave-tooltip {
   position: absolute;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 10px 14px;
-  font-size: 13px;
-  color: #333;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  font-size: 14px;
+  color: #111827;
   z-index: 1000;
-  transform: translate(-50%, -110%);
+  transform: translate(-50%, -120%);
   pointer-events: none;
   width: 220px;
+  transition: all 0.2s ease;
 }
 
-.leave-calendar-container .leave-tooltip::after {
+.leave-tooltip::after {
   content: "";
   position: absolute;
   bottom: -6px;
@@ -158,12 +174,45 @@
   border-color: #ddd transparent transparent transparent;
 }
 
-
-.leave-calendar-container .tooltip-item {
-  margin-bottom: 4px;
+.tooltip-item {
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
-.leave-calendar-container .tooltip-sub {
-  color: #777;
+.tooltip-sub {
+  color: #6b7280;
   font-size: 12px;
+}
+
+/* Fixed and optional holiday subtle gradient + top stripe */
+.fixed-holiday {
+  background: linear-gradient(to bottom, rgba(239,68,68,0.08), #fff);
+  border-top: 4px solid #ef4444;
+}
+
+.optional-holiday {
+  background: linear-gradient(to bottom, rgba(249,115,22,0.08), #fff);
+  border-top: 4px solid #f97316;
+}
+
+/* Holiday hover remains same */
+.fixed-holiday:hover, .optional-holiday:hover {
+  background-color: #f3f4f6;
+  cursor: pointer;
+}
+
+/* Weekend date numbers in red */
+.weekend-bg .day-number {
+  color: #ef4444; /* red */
+}
+/* Weekend subtle gradient + top stripe */
+.weekend-bg {
+  background: white /* light red gradient */
+  
+}
+
+/* Keep hover effect for weekends consistent */
+.weekend-bg:hover {
+  background-color: #f3f4f6;
+  cursor: pointer;
 }

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import { FaClipboardList } from "react-icons/fa";
 
-const LeaveNotification = () => {
+const LeaveNotification = ({ onPendingChange }) => {
+
   const { currentUser } = useContext(AuthContext);
   const [pendingCount, setPendingCount] = useState(0);
   const navigate = useNavigate();
@@ -14,16 +15,19 @@ const LeaveNotification = () => {
   }, [currentUser]);
 
   const fetchPendingLeaves = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8800/api/leave/pendingSubmissions/${currentUser.employee_id}`
-      );
-      console.log("Hurray", res.data.count)
-      setPendingCount(res.data.count || 0);
-    } catch (err) {
-      console.error("Error fetching pending leave submissions:", err);
-    }
-  };
+  try {
+    const res = await axios.get(
+      `http://localhost:8800/api/leave/pendingSubmissions/${currentUser.employee_id}`
+    );
+    const count = res.data.count || 0;
+    setPendingCount(count);
+    onPendingChange?.(count > 0);
+  } catch (err) {
+    console.error("Error fetching pending leave submissions:", err);
+    onPendingChange?.(false);
+  }
+};
+
 
   const handleClick = () => {
     navigate("/employee/leavedashboard");

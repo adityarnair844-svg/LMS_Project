@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import { FaBell } from "react-icons/fa";
 
-const ManagerNotification = () => {
+const ManagerNotification = ({ onPendingChange }) => {
+
   const { currentUser } = useContext(AuthContext);
   const [pendingCount, setPendingCount] = useState(0);
   const navigate = useNavigate();
@@ -14,15 +15,19 @@ const ManagerNotification = () => {
   }, [currentUser]);
 
   const fetchPendingApprovals = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8800/api/leave/pendingApprovalsCount/${currentUser.employee_id}`
-      );
-      setPendingCount(res.data.count || 0);
-    } catch (err) {
-      console.error("Error fetching pending approvals:", err);
-    }
-  };
+  try {
+    const res = await axios.get(
+      `http://localhost:8800/api/leave/pendingApprovalsCount/${currentUser.employee_id}`
+    );
+    const count = res.data.count || 0;
+    setPendingCount(count);
+    onPendingChange?.(count > 0);
+  } catch (err) {
+    console.error("Error fetching pending approvals:", err);
+    onPendingChange?.(false);
+  }
+};
+
 
   const handleClick = () => {
     navigate("/manager/approval");

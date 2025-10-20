@@ -6,7 +6,6 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Layout from "./Layout";
 import LeaveCalendar from "./components/LeaveCalendar";
-import CompDashboard from "./pages/CompDashboard";
 import OptionalHoliday from "./pages/OptionalHoliday";
 import MyQueries from "./pages/MyQueries";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,10 +32,6 @@ const router = createBrowserRouter([
           <Home />
         </ProtectedRoute>
       ),
-      },
-      {
-        path: "/compdashboard",
-        element: <CompDashboard />,
       },
       {
         path: "/employee/leavedashboard",

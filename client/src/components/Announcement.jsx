@@ -12,8 +12,9 @@ const Announcement = ({ isAdmin }) => {
   const [editing, setEditing] = useState(null);
   const [backup, setBackup] = useState({});
 
-  // Employee state
+  // Employee/Manager state
   const [expandedId, setExpandedId] = useState(null);
+  const [readAnnouncements, setReadAnnouncements] = useState([]);
 
   const fetchAnnouncements = async () => {
     try {
@@ -98,14 +99,20 @@ const Announcement = ({ isAdmin }) => {
     setEditing(null);
   };
 
-  return (
-  <div
-    style={{
-      ...styles.cardContainer,
-      height: isAdmin ? "600px" : "310px", // 👈 fixed height for employee/manager
-    }}
-  >
+  const markAsRead = (id) => {
+    if (!readAnnouncements.includes(id)) {
+      setReadAnnouncements((prev) => [...prev, id]);
+    }
+    setExpandedId(id);
+  };
 
+  return (
+    <div
+      style={{
+        ...styles.cardContainer,
+        height: isAdmin ? "600px" : "auto",
+      }}
+    >
       {/* Admin: Add New */}
       {isAdmin && (
         <div style={styles.addBox}>
@@ -126,6 +133,8 @@ const Announcement = ({ isAdmin }) => {
           <button
             style={{ ...styles.btn, ...styles.addBtn }}
             onClick={handleAdd}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#0f75d1")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#1890ff")}
           >
             <FaPlus /> Add
           </button>
@@ -133,125 +142,190 @@ const Announcement = ({ isAdmin }) => {
       )}
 
       {/* Scrollable Announcements List */}
-      <div style={styles.scrollableList}>
+      <div
+        style={{
+          ...styles.scrollableList,
+          maxHeight: isAdmin ? "500px" : "360px",
+        }}
+      >
         {loading && <p>Loading announcements...</p>}
-
         {announcements.length === 0 && !loading && <p>No announcements yet.</p>}
 
         {announcements.map((a) => {
-          // Employee view: show banner if not expanded
-          if (!isAdmin && expandedId !== a.announcement_id) {
+          // --- Employee/Manager view ---
+          if (!isAdmin) {
+            const isRead = readAnnouncements.includes(a.announcement_id);
+            if (expandedId !== a.announcement_id) {
+              // Collapsed banner
+              return (
+                <div
+                  key={a.announcement_id}
+                  style={{
+                    ...styles.bannerCard,
+                    cursor: "pointer",
+                    transition: "all 0.3s",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "15px",
+                    borderLeft: `4px solid ${isRead ? "#bbb" : "#1890ff"}`,
+                    background: isRead ? "#f5f5f5" : "#e6f7ff",
+                  }}
+                  onClick={() => markAsRead(a.announcement_id)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 18px rgba(0,0,0,0.18)";
+                    e.currentTarget.style.background = isRead ? "#eee" : "#d0ebff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.08)";
+                    e.currentTarget.style.background = isRead ? "#f5f5f5" : "#e6f7ff";
+                  }}
+                >
+                  <strong style={{ fontSize: "1.05rem", color: "#025b5b" }}>
+                    {a.heading}
+                  </strong>
+                  <small style={{ color: "#555", marginTop: "5px" }}>
+                    Click to view details
+                  </small>
+                </div>
+              );
+            }
+
+            // Expanded full view
             return (
               <div
                 key={a.announcement_id}
-                style={styles.bannerCard}
-                onClick={() => setExpandedId(a.announcement_id)}
+                style={{
+                  ...styles.card,
+                  padding: "20px",
+                  background: "#f0f5f5",
+                  border: "1px solid #91d5ff",
+                  display: "flex",
+                  flexDirection: "column",
+                  maxHeight: "360px",
+                }}
               >
-                <strong>{a.heading}</strong>
-                <small style={styles.date}>
-                  Posted on {new Date(a.created_at).toLocaleDateString()}
+                <h2 style={{ ...styles.expandedHeading, textAlign: "center" }}>
+                  {a.heading}
+                </h2>
+
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "240px",
+                    padding: "10px 15px",
+                    textAlign: "justify",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  <p style={{ ...styles.expandedContent, margin: 0 }}>
+                    {a.content}
+                  </p>
+                </div>
+
+                <small style={{ ...styles.date, alignSelf: "flex-end" }}>
+                  Posted on {new Date(a.created_at).toLocaleString()}
                 </small>
+
+                <button
+                  style={{
+                    ...styles.btn,
+                    ...styles.cancelBtn,
+                    marginTop: "10px",
+                    alignSelf: "center",
+                  }}
+                  onClick={() => setExpandedId(null)}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#666")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#888")}
+                >
+                  Back
+                </button>
               </div>
             );
           }
 
+          // --- Admin view remains unchanged ---
           return (
             <div key={a.announcement_id} style={styles.card}>
-              {/* Employee: expanded announcement */}
-              {!isAdmin && expandedId === a.announcement_id && (
+              {editing === a.announcement_id ? (
                 <>
-                  <h2 style={styles.expandedHeading}>{a.heading}</h2>
-                  <p style={styles.expandedContent}>{a.content}</p>
+                  <input
+                    style={styles.input}
+                    type="text"
+                    value={a.heading}
+                    onChange={(e) =>
+                      setAnnouncements((prev) =>
+                        prev.map((x) =>
+                          x.announcement_id === a.announcement_id
+                            ? { ...x, heading: e.target.value }
+                            : x
+                        )
+                      )
+                    }
+                  />
+                  <textarea
+                    style={styles.textarea}
+                    value={a.content}
+                    onChange={(e) =>
+                      setAnnouncements((prev) =>
+                        prev.map((x) =>
+                          x.announcement_id === a.announcement_id
+                            ? { ...x, content: e.target.value }
+                            : x
+                        )
+                      )
+                    }
+                  />
+                  <div style={styles.actionRow}>
+                    <button
+                      style={{ ...styles.btn, ...styles.saveBtn }}
+                      onClick={() =>
+                        handleSaveEdit(a.announcement_id, a.heading, a.content)
+                      }
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#389e0d")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#52c41a")}
+                    >
+                      <FaSave /> Save
+                    </button>
+                    <button
+                      style={{ ...styles.btn, ...styles.cancelBtn }}
+                      onClick={() => handleCancelEdit(a.announcement_id)}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#555")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#888")}
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h4 style={styles.heading}>{a.heading}</h4>
+                  <p style={styles.content}>{a.content}</p>
                   <small style={styles.date}>
                     Posted on {new Date(a.created_at).toLocaleString()}
                   </small>
-                  <button
-                    style={{ ...styles.btn, ...styles.cancelBtn }}
-                    onClick={() => setExpandedId(null)}
-                  >
-                    Back
-                  </button>
-                </>
-              )}
-
-              {/* Admin: full view */}
-              {isAdmin && (
-                <>
-                  {editing === a.announcement_id ? (
-                    <>
-                      <input
-                        style={styles.input}
-                        type="text"
-                        value={a.heading}
-                        onChange={(e) =>
-                          setAnnouncements((prev) =>
-                            prev.map((x) =>
-                              x.announcement_id === a.announcement_id
-                                ? { ...x, heading: e.target.value }
-                                : x
-                            )
-                          )
-                        }
-                      />
-                      <textarea
-                        style={styles.textarea}
-                        value={a.content}
-                        onChange={(e) =>
-                          setAnnouncements((prev) =>
-                            prev.map((x) =>
-                              x.announcement_id === a.announcement_id
-                                ? { ...x, content: e.target.value }
-                                : x
-                            )
-                          )
-                        }
-                      />
-                      <div style={styles.actionRow}>
-                        <button
-                          style={{ ...styles.btn, ...styles.saveBtn }}
-                          onClick={() =>
-                            handleSaveEdit(a.announcement_id, a.heading, a.content)
-                          }
-                        >
-                          <FaSave /> Save
-                        </button>
-                        <button
-                          style={{ ...styles.btn, ...styles.cancelBtn }}
-                          onClick={() => handleCancelEdit(a.announcement_id)}
-                        >
-                          <FaTimes /> Cancel
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <h4 style={styles.heading}>{a.heading}</h4>
-                      <p style={styles.content}>{a.content}</p>
-                      <small style={styles.date}>
-                        Posted on {new Date(a.created_at).toLocaleString()}
-                      </small>
-                      <div style={styles.actionRow}>
-                        <button
-                          style={{ ...styles.btn, ...styles.editBtn }}
-                          onClick={() => {
-                            setEditing(a.announcement_id);
-                            setBackup({
-                              heading: a.heading,
-                              content: a.content,
-                            });
-                          }}
-                        >
-                          <FaEdit /> Edit
-                        </button>
-                        <button
-                          style={{ ...styles.btn, ...styles.deleteBtn }}
-                          onClick={() => handleDelete(a.announcement_id)}
-                        >
-                          <FaTrash /> Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <div style={styles.actionRow}>
+                    <button
+                      style={{ ...styles.btn, ...styles.editBtn }}
+                      onClick={() => {
+                        setEditing(a.announcement_id);
+                        setBackup({ heading: a.heading, content: a.content });
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#e0a800")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#ffc107")}
+                    >
+                      <FaEdit /> Edit
+                    </button>
+                    <button
+                      style={{ ...styles.btn, ...styles.deleteBtn }}
+                      onClick={() => handleDelete(a.announcement_id)}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#cf1322")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#f5222d")}
+                    >
+                      <FaTrash /> Delete
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -266,7 +340,6 @@ const styles = {
   cardContainer: {
     display: "flex",
     flexDirection: "column",
-    height: "600px", // fixed height for the card
     width: "100%",
     background: "#f5f5f5",
     padding: "15px",
@@ -275,7 +348,7 @@ const styles = {
   },
   scrollableList: {
     overflowY: "auto",
-    flex: 1, // take remaining space
+    flex: 1,
     paddingRight: "5px",
   },
   addBox: {
@@ -293,24 +366,53 @@ const styles = {
     padding: "15px",
     marginBottom: "10px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    display: "flex",
+    flexDirection: "column",
   },
   bannerCard: {
-    background: "#e6f7ff",
-    border: "1px solid #91d5ff",
     borderRadius: "12px",
-    padding: "10px 15px",
-    cursor: "pointer",
     marginBottom: "10px",
   },
   heading: { margin: "0 0 5px 0", color: "#2b3e50" },
   content: { color: "#444", marginBottom: "8px" },
-  expandedHeading: { textAlign: "center", fontSize: "1.3rem", marginBottom: "10px", color: "#025b5b" },
-  expandedContent: { fontSize: "1rem", marginBottom: "15px", color: "#333", lineHeight: "1.5" },
-  date: { fontSize: "0.85rem", color: "#777", marginBottom: "10px" },
-  input: { width: "100%", padding: "8px", marginBottom: "10px", border: "1px solid #ccc", borderRadius: "6px" },
-  textarea: { width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "6px", minHeight: "80px", resize: "vertical", marginBottom: "10px" },
+  expandedHeading: {
+    fontSize: "1.3rem",
+    marginBottom: "10px",
+    color: "#025b5b",
+  },
+  expandedContent: {
+    fontSize: "1rem",
+    color: "#333",
+    lineHeight: "1.5",
+  },
+  date: { fontSize: "0.85rem", color: "#777" },
+  input: {
+    width: "100%",
+    padding: "8px",
+    marginBottom: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+  },
+  textarea: {
+    width: "100%",
+    padding: "8px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+    minHeight: "80px",
+    resize: "vertical",
+    marginBottom: "10px",
+  },
   actionRow: { display: "flex", gap: "10px", marginTop: "10px" },
-  btn: { border: "none", padding: "8px 12px", borderRadius: "6px", cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", gap: "5px" },
+  btn: {
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+  },
   addBtn: { background: "#1890ff" },
   editBtn: { background: "#ffc107", color: "#000" },
   deleteBtn: { background: "#f5222d" },

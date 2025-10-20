@@ -73,36 +73,71 @@ export const syncLeaveForEmployees = async (req, res) => {
   // Check if leave_type_id exists in leave_type table
   const checkLeaveType = "SELECT * FROM leave_type WHERE leave_type_id = ?";
   db.query(checkLeaveType, [leave_type_id], (err, leaveData) => {
-    if (err)
-      return res.status(500).json({ message: "DB error: " + err.message });
-    if (!leaveData || leaveData.length === 0)
-      return res.status(404).json({ message: "Leave type not found" });
+    if (err) return res.status(500).json({ message: "DB error: " + err.message });
+    if (!leaveData || leaveData.length === 0) return res.status(404).json({ message: "Leave type not found" });
 
-    // Insert for employees if not already assigned
+    const no_of_leaves_per_year = leaveData[0].no_of_leaves_per_year;
+
+    // 1️⃣ Insert missing leave_details rows for employees
     const insertQuery = `
-            INSERT INTO leave_details (employee_id, leave_type_id, balanced_leaves, used_leaves)
-            SELECT e.employee_id, lt.leave_type_id, lt.no_of_leaves_per_year, 0
-            FROM employee e
-            CROSS JOIN leave_type lt
-            WHERE lt.leave_type_id = ?
-            AND NOT EXISTS (
-            SELECT 1 FROM leave_details ld
-            WHERE ld.employee_id = e.employee_id
-            AND ld.leave_type_id = lt.leave_type_id
-            );
-        `;
-    db.query(insertQuery, [leave_type_id, leave_type_id], (err2, result) => {
-      if (err2)
-        return res.status(500).json({ message: "DB error: " + err2.message });
-      return res
-        .status(200)
-        .json({
-          message: "Leave synced for all employees",
-          addedRows: result.affectedRows,
+      INSERT INTO leave_details (employee_id, leave_type_id, balanced_leaves, used_leaves)
+      SELECT e.employee_id, lt.leave_type_id, lt.no_of_leaves_per_year, 0
+      FROM employee e
+      CROSS JOIN leave_type lt
+      WHERE lt.leave_type_id = ?
+      AND NOT EXISTS (
+        SELECT 1 FROM leave_details ld
+        WHERE ld.employee_id = e.employee_id
+          AND ld.leave_type_id = lt.leave_type_id
+      );
+    `;
+
+    db.query(insertQuery, [leave_type_id], (err2, insertRes) => {
+      if (err2) return res.status(500).json({ message: "DB error: " + err2.message });
+
+      const addedRows = insertRes?.affectedRows ?? 0;
+
+      // 2️⃣ Update existing leave_details for employees
+      // balanced_leaves = max(no_of_leaves_per_year - used_leaves, 0)
+      const updateQuery = `
+        UPDATE leave_details ld
+        JOIN leave_type lt ON ld.leave_type_id = lt.leave_type_id
+        SET ld.balanced_leaves = GREATEST(lt.no_of_leaves_per_year - ld.used_leaves, 0)
+        WHERE lt.leave_type_id = ?;
+      `;
+
+      db.query(updateQuery, [leave_type_id], (err3, updateRes) => {
+        if (err3) return res.status(500).json({ message: "DB error: " + err3.message });
+
+        const updatedRows = updateRes?.affectedRows ?? 0;
+
+        return res.status(200).json({
+          message: "Leave synced successfully. Balances updated safely for all employees.",
+          addedRows,
+          updatedRows,
         });
+      });
     });
   });
 };
+
+// GET /api/leave/balance/:employee_id/:leave_type_id
+export const getLeaveBalance = (req, res) => {
+  const { employee_id, leave_type_id } = req.params;
+  const query = `
+    SELECT balanced_leaves 
+    FROM leave_details 
+    WHERE employee_id = ? AND leave_type_id = ?
+  `;
+  db.query(query, [employee_id, leave_type_id], (err, data) => {
+    if (err) return res.status(500).json({ message: err.message });
+    if (!data || data.length === 0)
+      return res.status(404).json({ message: "Leave details not found" });
+
+    res.status(200).json({ balanced_leaves: data[0].balanced_leaves });
+  });
+};
+
 
 export const getLeaveDetailsById = async (req, res) => {
   const { employee_id } = req.params;
