@@ -45,6 +45,7 @@ const SavedLeaves = ({ onSuccess }) => {
             await axios.delete(`http://localhost:8800/api/leave/deleteApplication/${leaveId}`);
             toast.success("Leave deleted successfully");
             fetchLeaves();
+            onSuccess();
         } catch (err) {
             console.error("Error deleting leave:", err);
             toast.error("Failed to delete leave");
@@ -71,20 +72,20 @@ const SavedLeaves = ({ onSuccess }) => {
                 <table style={styles.table}>
                     {leaves.length > 0 ? (
                         <thead>
-                            <tr style={{backgroundColor: "rgb(2, 91, 91)"}}>
-                                <th style={{...styles.td, color: "#fff"}}>
+                            <tr style={{ backgroundColor: "rgb(2, 91, 91)" }}>
+                                <th style={{ ...styles.td, color: "#fff" }}>
                                     Req. ID
                                 </th>
-                                <th style={{...styles.td, color: "#fff"}}>
+                                <th style={{ ...styles.td, color: "#fff" }}>
                                     Leave Type
                                 </th>
-                                <th style={{...styles.td, color: "#fff"}}>
+                                <th style={{ ...styles.td, color: "#fff" }}>
                                     Leave Period
                                 </th>
-                                <th style={{...styles.td, color: "#fff"}}>
+                                <th style={{ ...styles.td, color: "#fff" }}>
                                     No. of days
                                 </th>
-                                <th style={{...styles.td, color: "#fff"}}>
+                                <th style={{ ...styles.td, color: "#fff" }}>
                                     Actions
                                 </th>
                             </tr>

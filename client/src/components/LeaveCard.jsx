@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/authContext";
 
-const LeaveCard = () => {
+const LeaveCard = ({ onCardClick, activeStatus , refreshTrigger}) => {
   const { currentUser } = useContext(AuthContext);
   const [stats, setStats] = useState({
     saved: 0,
@@ -13,7 +13,7 @@ const LeaveCard = () => {
 
   useEffect(() => {
     if (currentUser?.employee_id) fetchLeaveStats();
-  }, [currentUser]);
+  }, [currentUser, refreshTrigger]);
 
   const fetchLeaveStats = async () => {
     try {
@@ -27,16 +27,25 @@ const LeaveCard = () => {
   };
 
   const cardItems = [
-    { label: "Pending for Submission", value: stats.saved, color: "#6d4f2697" },
-    { label: "Pending for Approval", value: stats.pending, color: "#1d728c9a" },
-    { label: "Approved", value: stats.approved, color: "#194119a5" },
-    { label: "Rejected", value: stats.rejected, color: "#662826a7" },
+    { key: "saved", label: "Pending for Submission", value: stats.saved, color: "#6d4f2697" },
+    { key: "pending", label: "Pending for Approval", value: stats.pending, color: "#1d728c9a" },
+    { key: "approved", label: "Approved", value: stats.approved, color: "#194119a5" },
+    { key: "rejected", label: "Rejected", value: stats.rejected, color: "#662826a7" },
   ];
 
   return (
     <div style={styles.container}>
       {cardItems.map((item, index) => (
-        <div key={index} style={{ ...styles.card, borderLeft: `6px solid ${item.color}` }}>
+        <div
+          key={index}
+          onClick={() => item.key !== "saved" && onCardClick(item.key)}
+          style={{
+            ...styles.card,
+            borderLeft: `6px solid ${item.color}`,
+            backgroundColor: activeStatus === item.key ? "#f7f7f7" : "#fff",
+            cursor: item.key !== "saved" ? "pointer" : "default",
+          }}
+        >
           <div style={styles.count}>{item.value}</div>
           <div style={{ ...styles.label, color: item.color }}>{item.label}</div>
         </div>

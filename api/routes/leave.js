@@ -20,7 +20,8 @@ import {
   calendar,
   applyOptionalLeave,
   removeOptionalLeave,
-  getAppliedOptionalLeaves
+  getAppliedOptionalLeaves,
+  getLeavesByStatus
 } from "../controllers/leave.js";
 import { getLeaveBalance } from "../controllers/leave.js";
 
@@ -48,4 +49,5 @@ router.post("/applyOptional",applyOptionalLeave);
 router.post("/removeOptional", removeOptionalLeave);
 router.get("/appliedOptional/:employee_id", getAppliedOptionalLeaves);
 router.get("/getLeaveBalance/:employee_id/:leave_type_id", getLeaveBalance);
+router.get("/getLeavesByStatus/:employee_id/:status",getLeavesByStatus);
 export default router;
