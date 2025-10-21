@@ -890,6 +890,50 @@ export const getAppliedOptionalLeaves = async (req, res) => {
   }
 };
 
+export const getLeavesByStatus = async (req, res) => {
+  const { employee_id, status } = req.params;
+
+  // Map frontend keys to DB status values if needed
+
+
+  const statusRows = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT status_id FROM status WHERE status_name = ?",[status],
+        (err, rows) => (err ? reject(err) : resolve(rows))
+      );
+    });
+
+    if (statusRows.length === 0)
+      return res.status(404).json({ success: false, message: "'Approved' status not found" });
+    console.log("Heyyyy....", statusRows[0].status_id)
+
+    const status_id = statusRows[0].status_id;
+
+  const q = `
+    SELECT 
+      la.leave_application_id,
+      lt.leave_type_name AS leave_type,
+      DATE_FORMAT(la.start_date, '%Y-%m-%d') AS from_date,
+      DATE_FORMAT(la.end_date, '%Y-%m-%d') AS to_date,
+      la.no_of_days,
+      la.leave_purpose AS purpose,
+      la.status_note,
+      la.applied_date
+    FROM leave_application la
+    JOIN leave_type lt ON la.leave_type_id = lt.leave_type_id
+    WHERE la.employee_id = ? AND la.status_id= ?
+    ORDER BY la.applied_date DESC;
+  `;
+
+  db.query(q, [employee_id, status_id], (err, data) => {
+    if (err) {
+      console.error("Error fetching leave status data:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    return res.status(200).json(data);
+  });
+};
+
 
 
 
