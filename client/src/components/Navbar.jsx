@@ -33,10 +33,14 @@ const Navbar = () => {
     // Manager only
     ...(currentUser.role === "MANAGER"
       ? [
-          {
+        {
             name: "Leave Approval",
-            path: "/manager/approval",
-          },
+            dropdown: [
+          { name: "Approval Dashboard", path: "/manager/approval" },
+          { name: "Leave Approval History", path: "/manager/history" },
+        ],
+          }
+          
         ]
       : []),
     // Admin only

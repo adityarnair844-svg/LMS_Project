@@ -14,6 +14,7 @@ import EmployeeLeaveDashboard from "./pages/EmployeeLeaveDashboard";
 import LeaveRequest from "./components/LeaveRequest";
 import LeaveApproval from "./components/LeaveApproval";
 import AdminHoliday from "./pages/AdminHoliday";
+import LeaveHistoryManager from "./pages/LeaveHistoryManager";
 
 
 const router = createBrowserRouter([
@@ -65,7 +66,12 @@ const router = createBrowserRouter([
       {
         path: "/adminleave/optional",
         element: <AdminHoliday />
-      }
+      },
+      {
+        path: "/manager/history",
+        element: <LeaveHistoryManager />
+      },
+
     ],
   },
 

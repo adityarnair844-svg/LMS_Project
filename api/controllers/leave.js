@@ -934,6 +934,36 @@ export const getLeavesByStatus = async (req, res) => {
   });
 };
 
+// routes/leaveRoutes.js
+
+// GET /api/leave/history/:manager_id
+export const getLeaveHistoryForManager = (req, res) => {
+  const { manager_id } = req.params;
+  const query = `
+    SELECT la.leave_application_id,
+           e.first_name,
+           e.last_name,
+           lt.leave_type_name,
+           la.start_date,
+           la.end_date,
+           la.no_of_days,
+           s.status_name,
+           la.status_note
+    FROM leave_application la
+    JOIN employee e ON la.employee_id = e.employee_id
+    JOIN leave_type lt ON la.leave_type_id = lt.leave_type_id
+    JOIN status s ON la.status_id = s.status_id
+    WHERE e.manager_id = ? AND s.status_name IN ('Approved', 'Rejected')
+    ORDER BY la.applied_date DESC
+  `;
+  db.query(query, [manager_id], (err, data) => {
+    if (err) return res.status(500).json({ message: "Database error: " + err.message });
+    res.status(200).json(data);
+  });
+};
+
+
+
 
 
 
