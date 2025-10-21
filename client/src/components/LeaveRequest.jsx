@@ -428,7 +428,7 @@ const styles = {
   page: {
     width: "100%",
     minHeight: "100vh",
-    background: "linear-gradient(to right, #e8f1f5, #f6fafc)", // light bluish-gray gradient for consistency
+    background: "linear-gradient(to right, #e8f1f5, #f6fafc)", // page background stays the same
     padding: "50px 80px",
     fontFamily: "'Inter', sans-serif",
     color: "#222",
@@ -439,14 +439,14 @@ const styles = {
     fontWeight: "700",
     color: "#1f3b4d",
     marginBottom: "30px",
-    textAlign: "center", // centered heading
+    textAlign: "center",
   },
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "18px",
-    width: "100%", // full width form
-    maxWidth: "100%", // allow stretch
+    width: "100%",
+    maxWidth: "100%",
     backgroundColor: "#ffffff",
     padding: "40px",
     borderRadius: "10px",
@@ -469,14 +469,14 @@ const styles = {
     borderRadius: "6px",
     fontSize: "14px",
     outline: "none",
-    background: "#fff",
+    backgroundColor: "#fff", // replace background shorthand with backgroundColor
   },
   select: {
     padding: "10px 12px",
     border: "1px solid #ccc",
     borderRadius: "6px",
     fontSize: "14px",
-    background: "#fff",
+    backgroundColor: "#fff",
     cursor: "pointer",
   },
   textarea: {
@@ -485,7 +485,7 @@ const styles = {
     borderRadius: "6px",
     fontSize: "14px",
     resize: "vertical",
-    background: "#fff",
+    backgroundColor: "#fff",
     minHeight: "100px",
   },
   row: {
@@ -505,5 +505,6 @@ const styles = {
     fontSize: "12px",
   },
 };
+
 
 export default LeaveRequest;

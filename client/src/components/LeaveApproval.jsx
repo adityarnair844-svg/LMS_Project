@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/authContext";
+import { parseISO, format } from "date-fns";
 
 const LeaveApprovalPage = () => {
   const { currentUser } = useContext(AuthContext);
@@ -127,80 +128,79 @@ const LeaveApprovalPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {leaveApplications.map((leave) => (
-                  <tr
-                    key={leave.leave_application_id}
-                    style={{
-                      borderBottom: "1px solid #e5e7eb",
-                      transition: "background-color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#f9fdfd")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = "white")
-                    }
-                  >
-                    <td style={{ padding: "12px 16px" }}>
-                      {leave.leave_application_id}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>{leave.employee_id}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.employee_name}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.leave_type_name}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.leave_purpose}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.start_date}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.end_date}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.no_of_days}</td>
-                    <td style={{ padding: "12px 16px" }}>{leave.status_name}</td>
-                    <td
-                      style={{
-                        textAlign: "center",
-                        padding: "12px 16px",
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "12px",
-                      }}
-                    >
-                      <span
-                        onClick={() => handleAction(leave, "Approved")}
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "20px",
-                          color: "green",
-                          transition: "transform 0.2s ease",
-                        }}
-                        title="Approve"
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.transform = "scale(1.2)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.transform = "scale(1)")
-                        }
-                      >
-                        ✓
-                      </span>
-                      <span
-                        onClick={() => handleAction(leave, "Rejected")}
-                        style={{
-                          cursor: "pointer",
-                          fontSize: "20px",
-                          color: "#dc3545",
-                          transition: "transform 0.2s ease",
-                        }}
-                        title="Reject"
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.transform = "scale(1.2)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.transform = "scale(1)")
-                        }
-                      >
-                        ✕
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+  {leaveApplications.map((leave) => (
+    <tr
+      key={leave.leave_application_id}
+      style={{
+        borderBottom: "1px solid #e5e7eb",
+        transition: "background-color 0.2s ease",
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.backgroundColor = "#f9fdfd")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.backgroundColor = "white")
+      }
+    >
+      <td style={{ padding: "12px 16px" }}>{leave.leave_application_id}</td>
+      <td style={{ padding: "12px 16px" }}>{leave.employee_id}</td>
+      <td style={{ padding: "12px 16px" }}>{leave.employee_name}</td>
+      <td style={{ padding: "12px 16px" }}>{leave.leave_type_name}</td>
+      <td style={{ padding: "12px 16px" }}>{leave.leave_purpose}</td>
+      <td style={{ padding: "12px 16px" }}>
+        {format(parseISO(leave.start_date), "yyyy-MM-dd")}
+      </td>
+      <td style={{ padding: "12px 16px" }}>
+        {format(parseISO(leave.end_date), "yyyy-MM-dd")}
+      </td>
+      <td style={{ padding: "12px 16px" }}>{leave.no_of_days}</td>
+      <td style={{ padding: "12px 16px" }}>{leave.status_name}</td>
+      <td
+        style={{
+          textAlign: "center",
+          padding: "12px 16px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+        }}
+      >
+        <span
+          onClick={() => handleAction(leave, "Approved")}
+          style={{
+            cursor: "pointer",
+            fontSize: "20px",
+            color: "green",
+            transition: "transform 0.2s ease",
+          }}
+          title="Approve"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.2)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          ✓
+        </span>
+        <span
+          onClick={() => handleAction(leave, "Rejected")}
+          style={{
+            cursor: "pointer",
+            fontSize: "20px",
+            color: "#dc3545",
+            transition: "transform 0.2s ease",
+          }}
+          title="Reject"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.2)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          ✕
+        </span>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
             </table>
           </div>
         )}

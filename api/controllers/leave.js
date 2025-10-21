@@ -216,6 +216,8 @@ const generateLeaveApplicationId = async () => {
 
 export const applyLeave = async (req, res) => {
   try {
+    console.log("➡️ applyLeave called with:", req.body);
+
     const {
       leave_type_id,
       start_date,
@@ -223,28 +225,35 @@ export const applyLeave = async (req, res) => {
       end_date,
       end_half,
       reason,
-      status,       // "Saved" or "Pending"
+      status,
       employee_id,
-      num_days      // sent from frontend
+      num_days
     } = req.body;
 
-    // --- Validate required fields ---
     if (!leave_type_id || !start_date || !start_half || !end_date || !end_half || !reason || !status || !employee_id || num_days === undefined) {
+      console.log("❌ Missing fields");
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const leave_application_id = await generateLeaveApplicationId();
-    const applied_date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const applied_date = new Date().toISOString().slice(0, 10);
 
-    // --- Fetch status_id from status table ---
+    console.log("✅ Generated leave_application_id:", leave_application_id);
+
     const statusQuery = `SELECT status_id FROM status WHERE status_name = ? LIMIT 1`;
     db.query(statusQuery, [status], (err, statusResult) => {
-      if (err) return res.status(500).json({ message: "DB error fetching status", error: err.message });
-      if (statusResult.length === 0) return res.status(400).json({ message: "Invalid status" });
+      if (err) {
+        console.error("❌ DB error fetching status:", err);
+        return res.status(500).json({ message: "DB error fetching status" });
+      }
+      if (statusResult.length === 0) {
+        console.log("❌ Invalid status name:", status);
+        return res.status(400).json({ message: "Invalid status" });
+      }
 
       const status_id = statusResult[0].status_id;
+      console.log("✅ status_id:", status_id);
 
-      // --- Insert into leave_application ---
       const insertQuery = `
         INSERT INTO leave_application
         (leave_application_id, leave_purpose, start_date, end_date, no_of_days, applied_date, 
@@ -259,7 +268,7 @@ export const applyLeave = async (req, res) => {
           reason,
           start_date,
           end_date,
-          num_days,       // use frontend calculated days
+          num_days,
           applied_date,
           leave_type_id,
           status_id,
@@ -267,8 +276,12 @@ export const applyLeave = async (req, res) => {
           null
         ],
         (err, data) => {
-          if (err) return res.status(500).json({ message: "Database error", error: err.message });
+          if (err) {
+            console.error("❌ Error inserting leave:", err);
+            return res.status(500).json({ message: "Database error", error: err.message });
+          }
 
+          console.log("✅ Leave inserted:", data);
           return res.status(200).json({
             message: `Leave ${status === "Saved" ? "saved" : "submitted"} successfully`,
             leave_application_id,
@@ -278,7 +291,7 @@ export const applyLeave = async (req, res) => {
       );
     });
   } catch (err) {
-    console.error("Error applying leave:", err);
+    console.error("🔥 Error applying leave:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

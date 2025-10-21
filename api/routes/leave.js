@@ -22,6 +22,7 @@ import {
   removeOptionalLeave,
   getAppliedOptionalLeaves
 } from "../controllers/leave.js";
+import { getLeaveBalance } from "../controllers/leave.js";
 
 const router = express.Router();
 
@@ -46,4 +47,5 @@ router.get("/calendar/:employee_id",calendar);
 router.post("/applyOptional",applyOptionalLeave);
 router.post("/removeOptional", removeOptionalLeave);
 router.get("/appliedOptional/:employee_id", getAppliedOptionalLeaves);
+router.get("/getLeaveBalance/:employee_id/:leave_type_id", getLeaveBalance);
 export default router;
